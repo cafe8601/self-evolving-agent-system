@@ -1,0 +1,17 @@
+{
+    "timestamp": "2025-12-19T23:53:19+09:00",
+    "commit_hash": "e0abd793507271887bb5d66c472056f39491dd01",
+    "commit_message": "fix: Make observability hooks portable with dynamic paths\n",
+    "files_changed": [
+  ".opencode/brain/patterns/success/LP-001----Complete-self-evolving-agen.md",
+  ".opencode/brain/project_brain.yaml",
+  ".opencode/logs/commit_2025-12-19_23-16-12.json",
+  "observability/hooks/mdflow-wrapper.sh",
+  "observability/hooks/observability-wrapper.sh",
+  "observability/hooks/opencode-wrapper.sh",
+  "observability/learning/pattern-detector.ts"
+],
+    "author": "Educational Platform Developer",
+    "tags": "bugfix",
+    "auto_learned": true
+}

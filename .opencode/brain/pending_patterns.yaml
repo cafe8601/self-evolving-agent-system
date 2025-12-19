@@ -2,16 +2,32 @@
 #
 # Claude가 작업 중 발견한 패턴을 여기에 기록합니다.
 # 세션 종료 시 Hook이 이 파일을 읽어 project_brain.yaml에 병합합니다.
-#
-# 마지막 동기화: 2025-12-19T12:40:37.984Z
 
-pending_patterns: []
+pending_patterns:
+  - id: auto
+    context: CRUD Generator
+    status: SUCCESS_PATTERN
+    content: 3개 엔티티 CRUD API 자동 생성 완료
+    confidence: 0.85
+    tags:
+      - success
+      - learned
+    related_files: []
+  - id: auto
+    context: E-commerce 파이프라인 테스트
+    status: SUCCESS_PATTERN
+    content: Dry-run 테스트 완료
+    confidence: 0.85
+    tags:
+      - success
+      - learned
+    related_files: []
 pending_workflows: []
 pending_metrics:
   patterns_applied: 0
-  tasks_completed: 0
+  tasks_completed: 2
   tasks_failed: 0
 metadata:
-  last_updated: 2025-12-19T12:40:37.984Z
+  last_updated: 2025-12-19T15:25:03.539Z
   session_id: null
   auto_sync: true

@@ -994,6 +994,66 @@ learned_patterns:
       - observability/scripts/ensure-server.sh
       - .claude/settings.json
 
+  - id: LP-045
+    context: Hybrid Pipeline E-commerce 시스템 구현
+    status: SUCCESS_PATTERN
+    content: |
+      hybrid-pipeline.sh를 통한 E-commerce 시스템 구현 워크플로우:
+      - 아키텍처: Next.js 14 App Router + Prisma + Socket.IO
+      - 패턴 통합: LP-021~032의 12개 패턴을 실제 코드로 구현
+      - 서비스 분리: product, cart, stock, payment, order-state-machine
+      - 타입 안전성: 모든 API 응답/요청에 TypeScript 인터페이스
+      - 실시간 통신: Socket.IO Room 기반 주문/재고 구독
+      - 결제 연동: Toss Payments 2단계 플로우 (initiate → confirm)
+      핵심: 학습된 패턴을 조합하여 완전한 시스템 구현 가능
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-20T09:58:00+09:00
+    confidence: 0.92
+    tags:
+      - ecommerce
+      - hybrid-pipeline
+      - pattern-integration
+      - nextjs
+      - prisma
+      - socket.io
+      - toss-payments
+    related_files:
+      - Project/ecommerce-system/prisma/schema.prisma
+      - Project/ecommerce-system/src/services/product.service.ts
+  - id: LP-046
+    context: Claude Code 내에서 OpenCode/MDFlow CLI 실행 한계
+    status: FAILURE_PATTERN
+    content: |
+      Claude Code (claude) 내부에서 OpenCode/MDFlow CLI를 호출할 때 제약사항:
+      - OpenCode: `opencode run` 명령이 타임아웃 발생 (인터랙티브 TUI 필요)
+      - MDFlow: 실행은 되지만 내부적으로 `claude` 명령 호출, 45초~3분 소요
+      - 중첩 호출 이슈: Claude Code → MDFlow → Claude Code 구조로 세션 충돌 가능
+
+      해결책:
+      1. Claude Code만으로 직접 코드 작성 (권장 - 가장 빠르고 안정적)
+      2. 별도 터미널에서 OpenCode/MDFlow 실행
+      3. OpenCode는 `serve` 모드로 백그라운드 서버 활용 가능
+
+      핵심: hybrid-pipeline.sh는 설계상 별도 터미널 실행 전제, Claude Code 내부 호출은 비권장
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-20T10:15:00+09:00
+    confidence: 0.95
+    tags:
+      - cli-integration
+      - opencode
+      - mdflow
+      - timeout
+      - nested-execution
+      - architecture
+    related_files:
+      - scripts/hybrid-pipeline.sh
+      - .mdflow/review.claude.md
+      - Project/ecommerce-system/src/services/cart.service.ts
+      - Project/ecommerce-system/src/services/stock.service.ts
+      - Project/ecommerce-system/src/services/payment.service.ts
+      - Project/ecommerce-system/src/services/order-state-machine.ts
+      - Project/ecommerce-system/src/websocket/socket-server.ts
+
   - id: "LP-001"
     context: "기능 추가: : Complete self-evolving agent system with portable scripts
 
@@ -1051,6 +1111,35 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
       - ".opencode/logs/commit_2025-12-19_23-16-12.json"
       - "observability/hooks/mdflow-wrapper.sh"
       - "observability/hooks/observability-wrapper.sh"
+
+  - id: "LP-003"
+    context: "기능 추가: : Add auto-start observability server with portable settings
+
+- Add ensure-server.sh for auto-starting observability on SessionStart
+- Convert settings.json to settings.json.template with {{PROJECT_ROOT}} placeholders
+- Update install.sh to generate settings.json from template
+- Add settings.json to .gitignore (environment-specific)
+- Add LP-044 pattern for session start automation
+
+Portability: All paths now use templates or dynamic resolution.
+Run `./scripts/install.sh` after cloning to configure paths.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+    status: "SUCCESS_PATTERN"
+    content: |
+      Changed 6 file(s): .claude/settings.json .claude/settings.json.template .gitignore .opencode/brain/project_brain.yaml o
+    learned_at: "2025-12-20T00:05:31+09:00"
+    confidence: 0.8
+    tags:
+      - feature
+    related_files:
+      - ".claude/settings.json"
+      - ".claude/settings.json.template"
+      - ".gitignore"
+      - ".opencode/brain/project_brain.yaml"
+      - "observability/scripts/ensure-server.sh"
 skill_integration:
   git-expert:
     path: .claude/skills/git-expert/
@@ -1105,16 +1194,50 @@ skill_integration:
       - build
     description: 빠른 개발 명령
 workflow_history:
-  last_sync: "2025-12-19T23:53:19+09:00"
-  total_tasks: 17
-  successful_tasks: 17
+  last_sync: "2025-12-20T09:58:00+09:00"
+  total_tasks: 18
+  successful_tasks: 18
   failed_tasks: 0
   success_rate: 1
   model_usage:
-    claude-opus-4-5: 20
+    claude-opus-4-5: 21
     gpt-5.2: 0
     gemini-3-pro: 0
   recent_workflows:
+    - workflow: evolve
+      task: Hybrid Pipeline E-commerce System (Project 폴더)
+      started_at: 2025-12-20T09:30:00+09:00
+      completed_at: 2025-12-20T09:58:00+09:00
+      status: success
+      patterns_applied:
+        - LP-021
+        - LP-023
+        - LP-024
+        - LP-025
+        - LP-026
+        - LP-027
+        - LP-028
+        - LP-029
+        - LP-030
+        - LP-031
+        - LP-032
+      patterns_learned:
+        - LP-045
+      files_created:
+        - Project/ecommerce-system/package.json
+        - Project/ecommerce-system/prisma/schema.prisma
+        - Project/ecommerce-system/src/types/index.ts
+        - Project/ecommerce-system/src/services/product.service.ts
+        - Project/ecommerce-system/src/services/cart.service.ts
+        - Project/ecommerce-system/src/services/stock.service.ts
+        - Project/ecommerce-system/src/services/payment.service.ts
+        - Project/ecommerce-system/src/services/order-state-machine.ts
+        - Project/ecommerce-system/src/websocket/socket-server.ts
+        - Project/ecommerce-system/src/app/api/products/route.ts
+        - Project/ecommerce-system/src/app/api/products/[id]/route.ts
+        - Project/ecommerce-system/src/app/api/cart/route.ts
+        - Project/ecommerce-system/src/app/api/cart/merge/route.ts
+        - Project/ecommerce-system/README.md
     - workflow: evolve
       task: EvoAgent-Network GitHub Push
       started_at: 2025-12-19T20:35:00+09:00
@@ -1342,13 +1465,13 @@ workflow_history:
         - JWT 인증/utils/api-client.ts
         - JWT 인증/api/auth.routes.ts
 metrics:
-  patterns_learned: 1144
-  patterns_applied: 36
-  evolution_cycles: 29
-  confidence_average: .821
+  patterns_learned: 49
+  patterns_applied: 49
+  evolution_cycles: 32
+  confidence_average: 0.88
   by_status:
-    success_patterns: 45
-    failure_patterns: 1
+    success_patterns: 48
+    failure_patterns: 2
   by_tag:
     authentication: 4
     jwt: 3
