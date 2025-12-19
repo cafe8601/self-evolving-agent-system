@@ -13,8 +13,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
+import { fileURLToPath } from 'url';
 
-const PROJECT_DIR = '/home/cafe99/agent-system-project/self-evolving-agent-system';
+// Dynamic path resolution for portability
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PROJECT_DIR = path.resolve(__dirname, '../..');
 const BRAIN_FILE = path.join(PROJECT_DIR, '.opencode/brain/project_brain.yaml');
 const PENDING_FILE = path.join(PROJECT_DIR, '.opencode/brain/pending_patterns.yaml');
 const SERVER_URL = process.env.OBSERVABILITY_URL || 'http://localhost:4100';

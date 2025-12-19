@@ -8,7 +8,8 @@ SOURCE="${1:-claude-code}"
 EVENT_TYPE="${2:-Unknown}"
 SUMMARIZE="${3:-}"
 
-PROJECT_DIR="/home/cafe99/agent-system-project/self-evolving-agent-system"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 OBSERVABILITY_URL="${OBSERVABILITY_URL:-http://localhost:4100/events}"
 
 # Read JSON input from stdin

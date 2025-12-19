@@ -2,7 +2,8 @@
 # MDFlow Workflow Observability Wrapper
 # Sends workflow events to observability server
 
-PROJECT_DIR="/home/cafe99/agent-system-project/self-evolving-agent-system"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 OBSERVABILITY_URL="${OBSERVABILITY_URL:-http://localhost:4100/events}"
 
 EVENT_TYPE="${1:-WorkflowStart}"

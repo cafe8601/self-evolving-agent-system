@@ -970,6 +970,39 @@ learned_patterns:
       - api-cost-saving
     related_files:
       - scripts/crud-generator.sh
+
+  - id: "LP-001"
+    context: "기능 추가: : Complete self-evolving agent system with portable scripts
+
+- Add MDFlow integration (.mdflow/ workflows)
+- Add OpenCode agents (.opencode/ configuration)
+- Add Claude Code skills (.claude/skills/)
+- Add project brain with 43 learned patterns
+- Add automation scripts (batch, CRUD generator, pipelines)
+- Add installation script with cross-platform support
+- Update all scripts to use dynamic paths for portability
+- Add SDD specifications and documentation
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+    status: "SUCCESS_PATTERN"
+    content: |
+      Changed 89 file(s): .claude/commands/evolve.md .claude/rules/learning-loop.md .claude/settings.json .claude/skills/api-e
+    learned_at: "2025-12-19T23:16:12+09:00"
+    confidence: 0.8
+    tags:
+      - api
+      - configuration
+      - database
+      - feature
+      - ui
+    related_files:
+      - ".claude/commands/evolve.md"
+      - ".claude/rules/learning-loop.md"
+      - ".claude/settings.json"
+      - ".claude/skills/api-expert/SKILL.md"
+      - ".claude/skills/api-expert/cookbook/fastapi-guide.md"
 skill_integration:
   git-expert:
     path: .claude/skills/git-expert/
@@ -1024,7 +1057,7 @@ skill_integration:
       - build
     description: 빠른 개발 명령
 workflow_history:
-  last_sync: 2025-12-19T12:40:37.975Z
+  last_sync: "2025-12-19T23:16:12+09:00"
   total_tasks: 17
   successful_tasks: 17
   failed_tasks: 0
@@ -1261,12 +1294,12 @@ workflow_history:
         - JWT 인증/utils/api-client.ts
         - JWT 인증/api/auth.routes.ts
 metrics:
-  patterns_learned: 43
+  patterns_learned: 143
   patterns_applied: 35
-  evolution_cycles: 26
-  confidence_average: 0.884
+  evolution_cycles: 27
+  confidence_average: .842
   by_status:
-    success_patterns: 42
+    success_patterns: 43
     failure_patterns: 1
   by_tag:
     authentication: 4
