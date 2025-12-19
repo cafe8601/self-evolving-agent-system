@@ -1,0 +1,32 @@
+{
+  "name": "self-evolving-agent-system",
+  "version": "1.0.0",
+  "description": "> 🧠 자기 진화형 에이전트 전문가 시스템 > MDFlow + Oh-My-OpenCode + Claude Code Skills 통합",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx tsx src/middleware/rate-limiter.test.ts",
+    "learn:success": "npx tsx scripts/capture-learning.ts success",
+    "learn:failure": "npx tsx scripts/capture-learning.ts failure",
+    "learn:warning": "npx tsx scripts/capture-learning.ts warning",
+    "learn:discovery": "npx tsx scripts/capture-learning.ts discovery",
+    "brain:sync": "npx tsx scripts/sync-brain.ts",
+    "brain:status": "cat .opencode/brain/pending_patterns.yaml",
+    "sc:hook": "npx tsx scripts/superclaude-hook.ts",
+    "obs:start": "bash observability/scripts/start-server.sh",
+    "obs:stop": "bash observability/scripts/stop-server.sh",
+    "obs:status": "bash observability/scripts/status.sh",
+    "obs:dashboard": "cd observability/client && bun run dashboard.ts",
+    "obs:logs": "tail -f .observability.log"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "yaml": "^2.8.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.5",
+    "typescript": "^5.7.2"
+  }
+}

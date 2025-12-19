@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Self-Evolving Agent Observatory</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #21262d;
+      --border-color: #30363d;
+      --text-primary: #f0f6fc;
+      --text-secondary: #8b949e;
+      --text-muted: #484f58;
+      --accent-blue: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-red: #f85149;
+      --accent-yellow: #d29922;
+      --accent-purple: #a371f7;
+      --accent-cyan: #39c5cf;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      background: var(--bg-tertiary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+    }
+
+    .status-dot.connected {
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+    }
+
+    /* Dashboard Grid */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-value {
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Metric Cards */
+    .metric-card {
+      text-align: center;
+    }
+
+    .metric-card.success .card-value { color: var(--accent-green); }
+    .metric-card.warning .card-value { color: var(--accent-yellow); }
+    .metric-card.info .card-value { color: var(--accent-blue); }
+    .metric-card.purple .card-value { color: var(--accent-purple); }
+
+    /* Events Panel */
+    .events-panel {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .events-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .event-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.2s;
+    }
+
+    .event-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .event-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .event-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .event-type {
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .event-time {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .event-source {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--bg-tertiary);
+    }
+
+    .event-source.claude-code { color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+    .event-source.opencode { color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .event-source.mdflow { color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+
+    .event-summary {
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Brain Panel */
+    .brain-panel {
+      grid-column: span 2;
+    }
+
+    .pattern-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .pattern-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .pattern-status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .pattern-status.success { background: var(--accent-green); }
+    .pattern-status.failure { background: var(--accent-red); }
+
+    .pattern-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pattern-id {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .pattern-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pattern-confidence {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--bg-tertiary);
+      color: var(--accent-cyan);
+    }
+
+    /* Sessions Panel */
+    .sessions-panel {
+      grid-column: span 2;
+    }
+
+    .session-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .session-icon {
+      font-size: 20px;
+    }
+
+    .session-info {
+      flex: 1;
+    }
+
+    .session-id {
+      font-size: 12px;
+      font-family: monospace;
+      color: var(--text-secondary);
+    }
+
+    .session-source {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .session-events {
+      font-size: 12px;
+      color: var(--accent-cyan);
+    }
+
+    /* Charts Area */
+    .charts-panel {
+      grid-column: span 2;
+    }
+
+    .chart-container {
+      height: 200px;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      padding-top: 20px;
+    }
+
+    .chart-bar {
+      flex: 1;
+      background: var(--accent-blue);
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height 0.3s;
+    }
+
+    .chart-bar.success { background: var(--accent-green); }
+    .chart-bar.failure { background: var(--accent-red); }
+
+    /* Tool Usage */
+    .tool-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .tool-item:last-child { border-bottom: none; }
+    .tool-name {
+      width: 80px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tool-bar-container {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .tool-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    .tool-count {
+      width: 32px;
+      text-align: right;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-blue);
+    }
+
+    /* Workflow History */
+    .workflow-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .workflow-status {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .workflow-status.success { background: rgba(63, 185, 80, 0.2); }
+    .workflow-status.failed { background: rgba(248, 81, 73, 0.2); }
+
+    .workflow-info {
+      flex: 1;
+    }
+
+    .workflow-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .workflow-time {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .event-item {
+      animation: slideIn 0.3s ease-out;
+      cursor: pointer;
+    }
+
+    .event-item.error {
+      background: rgba(248, 81, 73, 0.1);
+      border-left: 3px solid var(--accent-red);
+    }
+
+    .event-item.warning {
+      background: rgba(210, 153, 34, 0.1);
+      border-left: 3px solid var(--accent-yellow);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-tertiary);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .modal-close:hover {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .detail-section {
+      margin-bottom: 20px;
+    }
+
+    .detail-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .detail-value.mono {
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+      background: var(--bg-primary);
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .detail-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .detail-row .detail-section {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge.success { background: rgba(63, 185, 80, 0.2); color: var(--accent-green); }
+    .badge.error { background: rgba(248, 81, 73, 0.2); color: var(--accent-red); }
+    .badge.info { background: rgba(88, 166, 255, 0.2); color: var(--accent-blue); }
+    .badge.warning { background: rgba(210, 153, 34, 0.2); color: var(--accent-yellow); }
+
+    /* Resolution button */
+    .resolve-btn {
+      background: var(--accent-green);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+    .resolve-btn:hover {
+      background: #0fa968;
+      transform: translateY(-1px);
+    }
+    .resolve-btn.unresolve {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+    .resolve-btn.unresolve:hover {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .resolution-section {
+      background: rgba(248, 81, 73, 0.05);
+      border: 1px solid rgba(248, 81, 73, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+    .resolution-section.resolved {
+      background: rgba(16, 185, 129, 0.05);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    /* Resolved event styling in list */
+    .event-item.resolved {
+      opacity: 0.6;
+      border-left-color: var(--accent-green) !important;
+    }
+    .event-item.resolved::before {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      color: var(--accent-green);
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    /* Tabs for filtering */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      background: var(--bg-primary);
+    }
+
+    .tab.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: white;
+    }
+
+    .tab.error-tab {
+      color: var(--accent-red);
+      border-color: var(--accent-red);
+    }
+
+    .tab.error-tab.active {
+      background: var(--accent-red);
+      color: white;
+    }
+
+    /* Error count badge */
+    .error-count {
+      background: var(--accent-red);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      margin-left: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .events-panel, .brain-panel, .sessions-panel, .charts-panel {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      .events-panel, .brain-panel, .sessions-panel, .charts-panel {
+        grid-column: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span class="logo-icon">🔬</span>
+      <h1>Self-Evolving Agent Observatory</h1>
+    </div>
+    <div class="connection-status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Connecting...</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="dashboard">
+      <!-- Metric Cards -->
+      <div class="card metric-card info">
+        <div class="card-title">📊 Total Events</div>
+        <div class="card-value" id="totalEvents">0</div>
+        <div class="card-subtitle">since server start</div>
+      </div>
+
+      <div class="card metric-card success">
+        <div class="card-title">✅ Success Rate</div>
+        <div class="card-value" id="successRate">0%</div>
+        <div class="card-subtitle">tool executions</div>
+      </div>
+
+      <div class="card metric-card purple">
+        <div class="card-title">🧠 Learned Patterns</div>
+        <div class="card-value" id="patternsCount">0</div>
+        <div class="card-subtitle">in project brain</div>
+      </div>
+
+      <div class="card metric-card warning">
+        <div class="card-title">🔄 Evolution Cycles</div>
+        <div class="card-value" id="evolutionCycles">0</div>
+        <div class="card-subtitle">completed</div>
+      </div>
+
+      <!-- Events Panel -->
+      <div class="card events-panel">
+        <div class="card-header">
+          <span class="card-title">📡 Live Events</span>
+          <span class="card-subtitle" id="eventCount">0 events</span>
+        </div>
+        <div class="tabs" id="eventTabs">
+          <span class="tab active" data-filter="all">All</span>
+          <span class="tab" data-filter="tools">🔧 Tools</span>
+          <span class="tab" data-filter="sessions">🚀 Sessions</span>
+          <span class="tab error-tab" data-filter="errors">❌ Errors<span class="error-count" id="errorCount">0</span></span>
+        </div>
+        <div class="events-list" id="eventsList">
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <div>No events yet. Start an agent session to see activity.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brain Panel -->
+      <div class="card brain-panel">
+        <div class="card-header">
+          <span class="card-title">🧠 Recent Patterns</span>
+          <span class="card-subtitle">learned by system</span>
+        </div>
+        <div class="pattern-list" id="patternsList">
+          <div class="empty-state">
+            <div class="empty-state-icon">💭</div>
+            <div>No patterns loaded yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sessions Panel -->
+      <div class="card sessions-panel">
+        <div class="card-header">
+          <span class="card-title">🖥️ Active Sessions</span>
+          <span class="card-subtitle" id="sessionCount">0 active</span>
+        </div>
+        <div class="sessions-list" id="sessionsList">
+          <div class="empty-state">
+            <div class="empty-state-icon">🔌</div>
+            <div>No active sessions.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow History -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📋 Recent Workflows</span>
+        </div>
+        <div class="workflow-list" id="workflowList">
+          <div class="empty-state">
+            <div class="empty-state-icon">📜</div>
+            <div>No workflows executed.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Panel -->
+      <div class="card charts-panel">
+        <div class="card-header">
+          <span class="card-title">📈 Event Timeline</span>
+          <span class="card-subtitle">last 24 hours</span>
+        </div>
+        <div class="chart-container" id="eventChart">
+          <!-- Chart bars will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Tool Usage Panel -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🔧 Top Tools</span>
+        </div>
+        <div class="tool-list" id="toolList">
+          <div class="empty-state">
+            <div class="empty-state-icon">🛠️</div>
+            <div>No tool usage data.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event Detail Modal -->
+  <div class="modal-overlay" id="eventModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">📌 Event Details</span>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Content will be injected -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Event type emojis
+    const eventEmojis = {
+      'SessionStart': '🚀',
+      'SessionEnd': '🏁',
+      'UserPromptSubmit': '💬',
+      'PreToolUse': '⏳',
+      'PostToolUse': '✅',
+      'PostToolUseFailure': '❌',
+      'Stop': '🛑',
+      'AgentStart': '🤖',
+      'AgentComplete': '✨',
+      'AgentError': '💥',
+      'AgentDelegate': '📤',
+      'WorkflowStart': '📋',
+      'PhaseStart': '▶️',
+      'PhaseComplete': '☑️',
+      'WorkflowComplete': '🎉',
+      'BrainSync': '🧠',
+      'PatternLearned': '💡',
+      'PatternApplied': '🔧'
+    };
+
+    // State
+    let ws = null;
+    let events = [];
+    let metrics = {};
+    let brain = {};
+    let currentFilter = 'all';
+    let selectedEvent = null;
+    const MAX_EVENTS = 100;
+
+    // Error event types
+    const errorTypes = ['PostToolUseFailure', 'AgentError', 'Error'];
+    const warningTypes = ['Stop', 'SessionEnd'];
+    const toolTypes = ['PreToolUse', 'PostToolUse', 'PostToolUseFailure'];
+    const sessionTypes = ['SessionStart', 'SessionEnd', 'Stop'];
+
+    // DOM elements
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const totalEventsEl = document.getElementById('totalEvents');
+    const successRateEl = document.getElementById('successRate');
+    const patternsCountEl = document.getElementById('patternsCount');
+    const evolutionCyclesEl = document.getElementById('evolutionCycles');
+    const eventsListEl = document.getElementById('eventsList');
+    const eventCountEl = document.getElementById('eventCount');
+    const patternsListEl = document.getElementById('patternsList');
+    const sessionsListEl = document.getElementById('sessionsList');
+    const sessionCountEl = document.getElementById('sessionCount');
+    const workflowListEl = document.getElementById('workflowList');
+    const eventChartEl = document.getElementById('eventChart');
+    const toolListEl = document.getElementById('toolList');
+    const eventModal = document.getElementById('eventModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const errorCountEl = document.getElementById('errorCount');
+
+    // Modal functions
+    function openModal(event) {
+      selectedEvent = event;
+      const emoji = eventEmojis[event.event_type] || '📌';
+      modalTitle.innerHTML = `${emoji} ${event.event_type}`;
+
+      const time = new Date(event.timestamp).toLocaleString();
+      const payload = event.payload || {};
+      const isError = errorTypes.includes(event.event_type) || payload.error;
+      const isResolved = event.resolved === true || event.resolved === 1;
+
+      let statusBadge = '<span class="badge info">Info</span>';
+      if (isResolved) statusBadge = '<span class="badge success">✓ Resolved</span>';
+      else if (isError) statusBadge = '<span class="badge error">Error</span>';
+      else if (payload.success === true) statusBadge = '<span class="badge success">Success</span>';
+      else if (warningTypes.includes(event.event_type)) statusBadge = '<span class="badge warning">Warning</span>';
+
+      // Resolution section for errors
+      let resolutionSection = '';
+      if (isError) {
+        if (isResolved) {
+          const resolvedTime = event.resolved_at ? new Date(event.resolved_at).toLocaleString() : '';
+          resolutionSection = `
+            <div class="detail-section resolution-section resolved">
+              <div class="detail-label">✅ Resolution Status</div>
+              <div class="detail-value">
+                <div style="color: var(--accent-green); font-weight: 600;">Resolved</div>
+                ${resolvedTime ? `<div style="font-size: 11px; color: #888; margin-top: 4px;">at ${resolvedTime}</div>` : ''}
+                ${event.resolved_note ? `<div style="font-size: 12px; margin-top: 8px; padding: 8px; background: rgba(16, 185, 129, 0.1); border-radius: 4px;">${escapeHtml(event.resolved_note)}</div>` : ''}
+                <button class="resolve-btn unresolve" onclick="unresolveError(${event.id})">↩️ Reopen</button>
+              </div>
+            </div>
+          `;
+        } else {
+          resolutionSection = `
+            <div class="detail-section resolution-section">
+              <div class="detail-label">🔧 Resolution</div>
+              <div class="detail-value">
+                <input type="text" id="resolveNote" placeholder="Optional: Add resolution note..." style="width: 100%; padding: 8px; margin-bottom: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
+                <button class="resolve-btn" onclick="resolveError(${event.id})">✓ Mark as Resolved</button>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      modalBody.innerHTML = `
+        <div class="detail-row">
+          <div class="detail-section">
+            <div class="detail-label">Status</div>
+            <div class="detail-value">${statusBadge}</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Source</div>
+            <div class="detail-value"><span class="event-source ${event.source_app}">${event.source_app}</span></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Timestamp</div>
+            <div class="detail-value">${time}</div>
+          </div>
+        </div>
+
+        ${resolutionSection}
+
+        <div class="detail-row">
+          <div class="detail-section">
+            <div class="detail-label">Session ID</div>
+            <div class="detail-value" style="font-family: monospace; font-size: 12px;">${event.session_id}</div>
+          </div>
+          ${event.duration_ms ? `
+          <div class="detail-section">
+            <div class="detail-label">Duration</div>
+            <div class="detail-value">${event.duration_ms}ms</div>
+          </div>
+          ` : ''}
+        </div>
+
+        ${payload.tool_name ? `
+        <div class="detail-section">
+          <div class="detail-label">Tool Name</div>
+          <div class="detail-value"><strong>${payload.tool_name}</strong></div>
+        </div>
+        ` : ''}
+
+        ${payload.error || payload.error_message ? `
+        <div class="detail-section">
+          <div class="detail-label">❌ Error Message</div>
+          <div class="detail-value mono" style="color: var(--accent-red);">${payload.error || payload.error_message}</div>
+        </div>
+        ` : ''}
+
+        ${payload.prompt ? `
+        <div class="detail-section">
+          <div class="detail-label">Prompt</div>
+          <div class="detail-value mono">${escapeHtml(payload.prompt)}</div>
+        </div>
+        ` : ''}
+
+        <div class="detail-section">
+          <div class="detail-label">Full Payload</div>
+          <div class="detail-value mono">${escapeHtml(JSON.stringify(payload, null, 2))}</div>
+        </div>
+      `;
+
+      eventModal.classList.add('active');
+    }
+
+    // Error resolution functions
+    async function resolveError(eventId) {
+      const noteInput = document.getElementById('resolveNote');
+      const note = noteInput ? noteInput.value : '';
+
+      try {
+        const response = await fetch(`/events/${eventId}/resolve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ note })
+        });
+
+        if (response.ok) {
+          // Update local event state
+          const event = events.find(e => e.id === eventId);
+          if (event) {
+            event.resolved = true;
+            event.resolved_at = Date.now();
+            event.resolved_note = note;
+          }
+          // Refresh modal and event list
+          if (selectedEvent && selectedEvent.id === eventId) {
+            openModal(event || selectedEvent);
+          }
+          updateEvents();
+        }
+      } catch (error) {
+        console.error('Failed to resolve error:', error);
+      }
+    }
+
+    async function unresolveError(eventId) {
+      try {
+        const response = await fetch(`/events/${eventId}/unresolve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+          // Update local event state
+          const event = events.find(e => e.id === eventId);
+          if (event) {
+            event.resolved = false;
+            event.resolved_at = null;
+            event.resolved_note = null;
+          }
+          // Refresh modal and event list
+          if (selectedEvent && selectedEvent.id === eventId) {
+            openModal(event || selectedEvent);
+          }
+          updateEvents();
+        }
+      } catch (error) {
+        console.error('Failed to unresolve error:', error);
+      }
+    }
+
+    function closeModal() {
+      eventModal.classList.remove('active');
+      selectedEvent = null;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Filter functions
+    function filterEvents(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.filter === filter);
+      });
+      updateEvents();
+    }
+
+    function getFilteredEvents() {
+      if (currentFilter === 'all') return events;
+      if (currentFilter === 'tools') return events.filter(e => toolTypes.includes(e.event_type));
+      if (currentFilter === 'sessions') return events.filter(e => sessionTypes.includes(e.event_type));
+      if (currentFilter === 'errors') return events.filter(e =>
+        errorTypes.includes(e.event_type) || e.payload?.error || e.payload?.success === false
+      );
+      return events;
+    }
+
+    function getErrorCount() {
+      // Only count unresolved errors
+      return events.filter(e =>
+        (errorTypes.includes(e.event_type) || e.payload?.error || e.payload?.success === false) &&
+        !(e.resolved === true || e.resolved === 1)
+      ).length;
+    }
+
+    function getResolvedErrorCount() {
+      return events.filter(e =>
+        (errorTypes.includes(e.event_type) || e.payload?.error || e.payload?.success === false) &&
+        (e.resolved === true || e.resolved === 1)
+      ).length;
+    }
+
+    // Event listeners for tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => filterEvents(tab.dataset.filter));
+    });
+
+    // Close modal on overlay click
+    eventModal.addEventListener('click', (e) => {
+      if (e.target === eventModal) closeModal();
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Connect to WebSocket
+    function connect() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/stream`;
+
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        statusDot.classList.add('connected');
+        statusText.textContent = 'Connected';
+      };
+
+      ws.onclose = () => {
+        statusDot.classList.remove('connected');
+        statusText.textContent = 'Disconnected';
+        setTimeout(connect, 3000);
+      };
+
+      ws.onerror = () => {
+        statusDot.classList.remove('connected');
+        statusText.textContent = 'Error';
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          handleMessage(message);
+        } catch (e) {
+          console.error('Failed to parse message:', e);
+        }
+      };
+    }
+
+    // Handle incoming messages
+    function handleMessage(message) {
+      switch (message.type) {
+        case 'initial':
+          if (message.data) {
+            events = message.data.events || [];
+            metrics = message.data.metrics || {};
+            brain = message.data.brain || {};
+            updateAll();
+          }
+          break;
+
+        case 'event':
+          if (message.data) {
+            events.unshift(message.data);
+            if (events.length > MAX_EVENTS) {
+              events.pop();
+            }
+            updateEvents();
+            updateMetrics();
+          }
+          break;
+
+        case 'metrics':
+          metrics = message.data || {};
+          updateMetrics();
+          break;
+
+        case 'brain-update':
+          brain = message.data || {};
+          updateBrain();
+          break;
+      }
+    }
+
+    // Update all displays
+    function updateAll() {
+      updateMetrics();
+      updateEvents();
+      updateBrain();
+      updateSessions();
+      updateWorkflows();
+      updateChart();
+      updateTools();
+    }
+
+    // Update metrics display
+    function updateMetrics() {
+      totalEventsEl.textContent = metrics.total_events || events.length;
+      successRateEl.textContent = `${((metrics.success_rate || 0) * 100).toFixed(1)}%`;
+      patternsCountEl.textContent = brain.total_patterns || 0;
+      evolutionCyclesEl.textContent = brain.evolution_cycles || 0;
+    }
+
+    // Update events list
+    function updateEvents() {
+      // Update error count (only unresolved errors)
+      const errorCount = getErrorCount();
+      errorCountEl.textContent = errorCount;
+
+      const filteredEvents = getFilteredEvents();
+
+      if (filteredEvents.length === 0) {
+        eventsListEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">${currentFilter === 'errors' ? '✅' : '📭'}</div>
+            <div>${currentFilter === 'errors' ? 'No errors found. Everything looks good!' : 'No events yet. Start an agent session to see activity.'}</div>
+          </div>
+        `;
+        return;
+      }
+
+      eventCountEl.textContent = `${filteredEvents.length} events`;
+      eventsListEl.innerHTML = filteredEvents.slice(0, 30).map((event, index) => {
+        const emoji = eventEmojis[event.event_type] || '📌';
+        const time = new Date(event.timestamp).toLocaleTimeString();
+        const summary = extractSummary(event);
+        const isError = errorTypes.includes(event.event_type) || event.payload?.error || event.payload?.success === false;
+        const isWarning = warningTypes.includes(event.event_type);
+        const isResolved = event.resolved === true || event.resolved === 1;
+
+        let itemClass = isError ? 'error' : (isWarning ? 'warning' : '');
+        if (isResolved) itemClass += ' resolved';
+
+        // Show resolved check mark for resolved errors
+        const resolvedIcon = isResolved ? '<span class="resolved-mark">✓</span>' : '';
+
+        return `
+          <div class="event-item ${itemClass}" onclick="openModal(events[${events.indexOf(event)}])" style="position: relative;">
+            <span class="event-icon">${isResolved ? '✅' : emoji}</span>
+            <div class="event-content">
+              <div class="event-header">
+                <span class="event-type">${event.event_type}${isResolved ? ' (Resolved)' : ''}</span>
+                <span class="event-time">${time}</span>
+              </div>
+              <span class="event-source ${event.source_app}">${event.source_app}</span>
+              ${summary ? `<div class="event-summary">${summary}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Extract summary from event
+    function extractSummary(event) {
+      const payload = event.payload || {};
+      if (payload.tool_name) return `Tool: ${payload.tool_name}`;
+      if (payload.agent_name) return `Agent: ${payload.agent_name}`;
+      if (payload.workflow_name) return `Workflow: ${payload.workflow_name}`;
+      if (payload.prompt) return payload.prompt.substring(0, 50) + '...';
+      return '';
+    }
+
+    // Update brain/patterns display
+    function updateBrain() {
+      const patterns = brain.recent_patterns || [];
+
+      if (patterns.length === 0) {
+        patternsListEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">💭</div>
+            <div>No patterns loaded yet.</div>
+          </div>
+        `;
+        return;
+      }
+
+      patternsListEl.innerHTML = patterns.slice(0, 10).map(pattern => `
+        <div class="pattern-item">
+          <span class="pattern-status ${pattern.status === 'SUCCESS_PATTERN' ? 'success' : 'failure'}"></span>
+          <div class="pattern-content">
+            <span class="pattern-id">${pattern.id}</span>
+            <div class="pattern-text">${pattern.content?.substring(0, 60) || pattern.context}...</div>
+          </div>
+          <span class="pattern-confidence">${Math.round((pattern.confidence || 0) * 100)}%</span>
+        </div>
+      `).join('');
+    }
+
+    // Update sessions display
+    function updateSessions() {
+      // This would need session data from the server
+      // For now, we'll extract from events
+      const sessionMap = new Map();
+      events.forEach(event => {
+        if (!sessionMap.has(event.session_id)) {
+          sessionMap.set(event.session_id, {
+            id: event.session_id,
+            source: event.source_app,
+            count: 0
+          });
+        }
+        sessionMap.get(event.session_id).count++;
+      });
+
+      const sessions = Array.from(sessionMap.values());
+      sessionCountEl.textContent = `${sessions.length} active`;
+
+      if (sessions.length === 0) {
+        sessionsListEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🔌</div>
+            <div>No active sessions.</div>
+          </div>
+        `;
+        return;
+      }
+
+      sessionsListEl.innerHTML = sessions.slice(0, 5).map(session => `
+        <div class="session-item">
+          <span class="session-icon">${session.source === 'claude-code' ? '🤖' : session.source === 'mdflow' ? '📋' : '💻'}</span>
+          <div class="session-info">
+            <div class="session-id">${session.id.substring(0, 20)}...</div>
+            <div class="session-source">${session.source}</div>
+          </div>
+          <span class="session-events">${session.count} events</span>
+        </div>
+      `).join('');
+    }
+
+    // Update workflows display
+    function updateWorkflows() {
+      const workflows = brain.recent_workflows || [];
+
+      if (workflows.length === 0) {
+        workflowListEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📜</div>
+            <div>No workflows executed.</div>
+          </div>
+        `;
+        return;
+      }
+
+      workflowListEl.innerHTML = workflows.slice(0, 5).map(wf => `
+        <div class="workflow-item">
+          <span class="workflow-status ${wf.status}">${wf.status === 'success' ? '✓' : '✗'}</span>
+          <div class="workflow-info">
+            <div class="workflow-name">${wf.workflow}: ${wf.task?.substring(0, 30) || 'Unknown'}...</div>
+            <div class="workflow-time">${new Date(wf.completed_at).toLocaleString()}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Update chart
+    function updateChart() {
+      // Group events by hour
+      const hourCounts = new Array(24).fill(0);
+      const now = Date.now();
+      const dayAgo = now - 24 * 60 * 60 * 1000;
+
+      events.forEach(event => {
+        const time = new Date(event.timestamp).getTime();
+        if (time >= dayAgo) {
+          const hour = Math.floor((time - dayAgo) / (60 * 60 * 1000));
+          if (hour >= 0 && hour < 24) {
+            hourCounts[hour]++;
+          }
+        }
+      });
+
+      const maxCount = Math.max(...hourCounts, 1);
+
+      eventChartEl.innerHTML = hourCounts.map((count, i) => {
+        const height = (count / maxCount) * 100;
+        return `<div class="chart-bar" style="height: ${Math.max(height, 2)}%" title="${count} events"></div>`;
+      }).join('');
+    }
+
+    // Update tools usage
+    function updateTools() {
+      // Count tool usage from PostToolUse events
+      const toolCounts = {};
+      events.forEach(event => {
+        if (event.event_type === 'PostToolUse' && event.payload?.tool_name) {
+          const toolName = event.payload.tool_name;
+          toolCounts[toolName] = (toolCounts[toolName] || 0) + 1;
+        }
+      });
+
+      // Sort by count and get top 8
+      const sortedTools = Object.entries(toolCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
+
+      if (sortedTools.length === 0) {
+        toolListEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🛠️</div>
+            <div>No tool usage data.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const maxCount = sortedTools[0][1];
+      toolListEl.innerHTML = sortedTools.map(([name, count]) => {
+        const percent = (count / maxCount) * 100;
+        return `
+          <div class="tool-item">
+            <div class="tool-name">${name}</div>
+            <div class="tool-bar-container">
+              <div class="tool-bar" style="width: ${percent}%"></div>
+            </div>
+            <div class="tool-count">${count}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Fetch initial data via HTTP
+    async function fetchInitialData() {
+      try {
+        const [metricsRes, brainRes, eventsRes] = await Promise.all([
+          fetch('/metrics/summary'),
+          fetch('/brain/state'),
+          fetch('/events/recent?limit=50')
+        ]);
+
+        if (metricsRes.ok) {
+          const data = await metricsRes.json();
+          metrics = data.data || {};
+        }
+
+        if (brainRes.ok) {
+          const data = await brainRes.json();
+          brain = data.data || {};
+        }
+
+        if (eventsRes.ok) {
+          const data = await eventsRes.json();
+          events = data.data || [];
+        }
+
+        updateAll();
+      } catch (e) {
+        console.error('Failed to fetch initial data:', e);
+      }
+    }
+
+    // Initialize
+    fetchInitialData();
+    connect();
+
+    // Periodic refresh
+    setInterval(() => {
+      updateChart();
+      updateSessions();
+    }, 10000);
+  </script>
+</body>
+</html>

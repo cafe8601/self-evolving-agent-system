@@ -1,0 +1,17 @@
+# Pending Patterns - 자동 학습 중간 파일
+#
+# Claude가 작업 중 발견한 패턴을 여기에 기록합니다.
+# 세션 종료 시 Hook이 이 파일을 읽어 project_brain.yaml에 병합합니다.
+#
+# 마지막 동기화: 2025-12-19T12:40:37.984Z
+
+pending_patterns: []
+pending_workflows: []
+pending_metrics:
+  patterns_applied: 0
+  tasks_completed: 0
+  tasks_failed: 0
+metadata:
+  last_updated: 2025-12-19T12:40:37.984Z
+  session_id: null
+  auto_sync: true

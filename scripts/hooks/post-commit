@@ -1,0 +1,92 @@
+#!/bin/bash
+# ═══════════════════════════════════════════════════════════════
+# Post-Commit Hook - 커밋 후 자동 학습 트리거
+# ═══════════════════════════════════════════════════════════════
+
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+SCRIPTS_DIR="$PROJECT_ROOT/scripts"
+BRAIN_FILE="$PROJECT_ROOT/.opencode/brain/project_brain.yaml"
+CONFIG_FILE="$PROJECT_ROOT/.opencode/automation-config.yaml"
+
+echo "🧠 [Post-Commit] Starting auto-learning process..."
+
+# 자동 학습 활성화 체크
+AUTO_LEARN_ENABLED=true
+if [[ -f "$CONFIG_FILE" ]]; then
+    AUTO_LEARN_ENABLED=$(grep "auto_learn_on_commit:" "$CONFIG_FILE" | awk '{print $2}' 2>/dev/null || echo "true")
+fi
+
+if [[ "$AUTO_LEARN_ENABLED" != "true" ]]; then
+    echo "   Auto-learning disabled in config"
+    exit 0
+fi
+
+# 커밋 정보 추출
+COMMIT_HASH=$(git rev-parse HEAD)
+COMMIT_MSG=$(git log -1 --pretty=%B)
+COMMIT_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD)
+COMMIT_AUTHOR=$(git log -1 --pretty=%an)
+COMMIT_DATE=$(git log -1 --pretty=%ci)
+
+echo "   Commit: ${COMMIT_HASH:0:8}"
+echo "   Author: $COMMIT_AUTHOR"
+echo "   Files changed: $(echo "$COMMIT_FILES" | wc -l)"
+
+# 커밋 메시지에서 태그 추출
+TAGS=""
+if [[ "$COMMIT_MSG" == *"fix"* ]] || [[ "$COMMIT_MSG" == *"bug"* ]]; then
+    TAGS="bugfix"
+fi
+if [[ "$COMMIT_MSG" == *"feat"* ]] || [[ "$COMMIT_MSG" == *"feature"* ]]; then
+    TAGS="$TAGS feature"
+fi
+if [[ "$COMMIT_MSG" == *"refactor"* ]]; then
+    TAGS="$TAGS refactor"
+fi
+if [[ "$COMMIT_MSG" == *"test"* ]]; then
+    TAGS="$TAGS testing"
+fi
+
+# 학습 로그 기록
+LOG_DIR="$PROJECT_ROOT/.opencode/logs"
+mkdir -p "$LOG_DIR"
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+
+cat > "$LOG_DIR/commit_$TIMESTAMP.json" << EOF
+{
+    "timestamp": "$(date -Iseconds)",
+    "commit_hash": "$COMMIT_HASH",
+    "commit_message": $(echo "$COMMIT_MSG" | head -1 | jq -Rs .),
+    "files_changed": $(echo "$COMMIT_FILES" | jq -Rs 'split("\n") | map(select(length > 0))'),
+    "author": "$COMMIT_AUTHOR",
+    "tags": "$(echo $TAGS | xargs)",
+    "auto_learned": true
+}
+EOF
+
+# Brain 메트릭 업데이트
+if [[ -f "$BRAIN_FILE" ]]; then
+    # last_sync 업데이트
+    sed -i "s/last_sync:.*/last_sync: \"$(date -Iseconds)\"/" "$BRAIN_FILE"
+
+    # evolution_cycles 증가
+    CURRENT_CYCLES=$(grep "evolution_cycles:" "$BRAIN_FILE" | head -1 | awk '{print $2}')
+    NEW_CYCLES=$((CURRENT_CYCLES + 1))
+    sed -i "s/evolution_cycles: $CURRENT_CYCLES/evolution_cycles: $NEW_CYCLES/" "$BRAIN_FILE"
+
+    echo "   Evolution cycles: $NEW_CYCLES"
+fi
+
+# 자동 학습 스크립트 실행 (백그라운드)
+if [[ -f "$SCRIPTS_DIR/auto-learn.sh" ]]; then
+    nohup "$SCRIPTS_DIR/auto-learn.sh" \
+        --commit "$COMMIT_HASH" \
+        --message "$COMMIT_MSG" \
+        --files "$COMMIT_FILES" \
+        --tags "$TAGS" \
+        > "$LOG_DIR/auto-learn_$TIMESTAMP.log" 2>&1 &
+    echo "   Auto-learning started in background (PID: $!)"
+fi
+
+echo "✅ [Post-Commit] Learning process initiated"
+exit 0

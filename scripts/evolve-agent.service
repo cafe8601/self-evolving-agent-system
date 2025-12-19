@@ -1,0 +1,52 @@
+# ═══════════════════════════════════════════════════════════════
+# Self-Evolving Agent System - Systemd Service
+# 파일 감시 데몬을 시스템 서비스로 실행
+# ═══════════════════════════════════════════════════════════════
+#
+# 설치 방법:
+# 1. sudo cp evolve-agent.service /etc/systemd/system/
+# 2. sudo systemctl daemon-reload
+# 3. sudo systemctl enable evolve-agent
+# 4. sudo systemctl start evolve-agent
+#
+# 또는 사용자 서비스로 설치:
+# 1. mkdir -p ~/.config/systemd/user
+# 2. cp evolve-agent.service ~/.config/systemd/user/
+# 3. systemctl --user daemon-reload
+# 4. systemctl --user enable evolve-agent
+# 5. systemctl --user start evolve-agent
+# ═══════════════════════════════════════════════════════════════
+
+[Unit]
+Description=Self-Evolving Agent System - File Watcher Daemon
+Documentation=https://github.com/your-repo/self-evolving-agent-system
+After=network.target
+
+[Service]
+Type=simple
+User=%i
+Group=%i
+
+# 프로젝트 경로 (설치 시 수정 필요)
+WorkingDirectory=/home/cafe99/agent-system-project/self-evolving-agent-system
+ExecStart=/home/cafe99/agent-system-project/self-evolving-agent-system/scripts/file-watcher.sh --watch
+ExecStop=/bin/kill -SIGTERM $MAINPID
+
+# 재시작 정책
+Restart=on-failure
+RestartSec=10
+
+# 환경 변수
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=HOME=/home/cafe99
+
+# 로그
+StandardOutput=append:/home/cafe99/agent-system-project/self-evolving-agent-system/.opencode/logs/service.log
+StandardError=append:/home/cafe99/agent-system-project/self-evolving-agent-system/.opencode/logs/service-error.log
+
+# 리소스 제한
+MemoryMax=512M
+CPUQuota=50%
+
+[Install]
+WantedBy=multi-user.target

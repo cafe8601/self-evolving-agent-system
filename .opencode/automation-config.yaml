@@ -1,0 +1,194 @@
+# ═══════════════════════════════════════════════════════════════
+# Self-Evolving Agent System - Automation Configuration
+# 자동화 시스템 설정 파일
+# ═══════════════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────────────
+# 전역 설정
+# ───────────────────────────────────────────────────────────────
+global:
+  enabled: true
+  log_level: "info"  # debug, info, warn, error
+  timezone: "Asia/Seoul"
+
+# ───────────────────────────────────────────────────────────────
+# Git Hook 설정
+# ───────────────────────────────────────────────────────────────
+git_hooks:
+  enabled: true
+
+  pre_commit:
+    enabled: true
+    check_failure_patterns: true
+    run_lint: true
+    run_tests: false
+    block_on_failure: false  # true면 커밋 차단
+
+  post_commit:
+    enabled: true
+    auto_learn_on_commit: true
+    trigger_evolution: false  # true면 매 커밋마다 evolve 실행
+    extract_tags_from_message: true
+
+# ───────────────────────────────────────────────────────────────
+# 파일 감시 설정
+# ───────────────────────────────────────────────────────────────
+file_watcher:
+  enabled: true
+
+  # 감시할 디렉토리 (프로젝트 루트 기준)
+  watch_paths: "src lib app components"
+
+  # 감시할 파일 확장자
+  watch_extensions: "ts,tsx,js,jsx,py,md,yaml"
+
+  # 제외 패턴
+  exclude_patterns: "node_modules,.git,dist,build,__pycache__,.next"
+
+  # 디바운싱 (초) - 연속 변경 시 대기 시간
+  debounce_seconds: 3
+
+  # 자동 실행 옵션
+  auto_run_lint: false
+  auto_run_tests: false
+  auto_trigger_evolve: true
+
+  # 최소 트리거 간격 (초)
+  min_trigger_interval: 60
+
+# ───────────────────────────────────────────────────────────────
+# 자동 학습 설정
+# ───────────────────────────────────────────────────────────────
+auto_learning:
+  enabled: true
+
+  # 기본 신뢰도 점수
+  default_confidence: 0.8
+
+  # AI 분석 사용 (Claude 호출)
+  use_ai_analysis: false
+
+  # 패턴 저장 설정
+  max_patterns: 100
+  min_confidence_to_keep: 0.5
+  auto_archive_after_days: 90
+
+  # 태그 자동 추출
+  auto_extract_tags: true
+
+  # 관련 파일 자동 연결
+  auto_link_files: true
+
+# ───────────────────────────────────────────────────────────────
+# 진화 러너 설정
+# ───────────────────────────────────────────────────────────────
+evolve_runner:
+  # 기본 실행기
+  default_executor: "claude"  # claude, mdflow, opencode
+
+  # 타임아웃 (초)
+  timeout_seconds: 300
+
+  # 병렬 실행
+  parallel_execution: true
+
+  # 자동 학습
+  auto_learn_after_task: true
+
+  # 보고서 생성
+  generate_report: true
+
+  # 실패 시 재시도
+  retry_on_failure: false
+  max_retries: 2
+
+# ───────────────────────────────────────────────────────────────
+# LLM 모델 설정
+# ───────────────────────────────────────────────────────────────
+llm_models:
+  # 역할별 모델 지정
+  planner: "claude-opus-4-5"
+  builder: "gpt-5.2"
+  researcher: "gemini-3-pro"
+  reviewer: "claude-opus-4-5"
+
+  # 모델별 타임아웃
+  timeouts:
+    claude: 120
+    gpt: 90
+    gemini: 60
+
+# ───────────────────────────────────────────────────────────────
+# 알림 설정
+# ───────────────────────────────────────────────────────────────
+notifications:
+  enabled: false
+
+  # 알림 조건
+  notify_on_failure: true
+  notify_on_new_pattern: true
+  notify_on_low_confidence: true
+  low_confidence_threshold: 0.6
+
+  # 알림 채널 (향후 확장)
+  # slack_webhook: ""
+  # discord_webhook: ""
+  # email: ""
+
+# ───────────────────────────────────────────────────────────────
+# 로깅 설정
+# ───────────────────────────────────────────────────────────────
+logging:
+  # 로그 보관 기간 (일)
+  retention_days: 30
+
+  # 최대 로그 파일 크기 (MB)
+  max_file_size_mb: 10
+
+  # 로그 파일 회전
+  rotate_logs: true
+
+  # 상세 로깅
+  verbose: false
+
+# ───────────────────────────────────────────────────────────────
+# 스킬 통합 설정
+# ───────────────────────────────────────────────────────────────
+skill_integration:
+  # 스킬 자동 트리거
+  auto_trigger_skills: true
+
+  # 스킬별 설정
+  skills:
+    git-expert:
+      enabled: true
+      auto_commit: false
+      auto_push: false
+
+    debug-expert:
+      enabled: true
+      auto_fix: false
+
+    refactor-expert:
+      enabled: true
+      confirm_before_refactor: true
+
+    api-expert:
+      enabled: true
+
+    project-expert:
+      enabled: true
+      sync_interval_minutes: 30
+
+# ───────────────────────────────────────────────────────────────
+# 개발 환경 설정
+# ───────────────────────────────────────────────────────────────
+development:
+  # 디버그 모드
+  debug_mode: false
+
+  # 드라이 런 (실제 변경 없이 시뮬레이션)
+  dry_run: false
+
+  # 상세 출력
+  verbose_output: false

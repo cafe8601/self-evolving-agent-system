@@ -1,0 +1,83 @@
+{
+  "$schema": "https://raw.githubusercontent.com/anthropics/claude-code/main/schemas/hooks.json",
+  "_comment": [
+    "Claude Code Hook 설정 예시 - SuperClaude 자동 학습 시스템",
+    "",
+    "이 파일을 ~/.claude/settings.json의 hooks 섹션에 복사하세요.",
+    "또는 프로젝트 루트의 .claude/settings.json에 추가할 수 있습니다.",
+    "",
+    "⚠️ PROJECT_PATH를 실제 프로젝트 경로로 변경하세요!"
+  ],
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "_comment": "SuperClaude 명령어 (/sc:*) 실행 로깅",
+        "matcher": "^/sc:",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[SC-LOG] $(date -Iseconds) Command: $CLAUDE_PROMPT\" >> PROJECT_PATH/.opencode/brain/sc_commands.log 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "_comment": "SuperClaude 명령어 성공 시 패턴 자동 캡처",
+        "matcher": "SlashCommand",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd PROJECT_PATH && SC_COMMAND=\"$TOOL_INPUT\" SC_RESULT=\"success\" npx tsx scripts/superclaude-hook.ts 2>&1 || true"
+          }
+        ]
+      },
+      {
+        "_comment": "Edit 도구 사용 후 파일 변경 기록 (선택적)",
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[$(date +%Y-%m-%dT%H:%M:%S)] Edit tool used\" >> /tmp/claude-activity.log"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "_comment": "SuperClaude 명령어 실패 시 패턴 자동 캡처",
+        "matcher": "SlashCommand",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd PROJECT_PATH && SC_COMMAND=\"$TOOL_INPUT\" SC_RESULT=\"failure\" npx tsx scripts/superclaude-hook.ts 2>&1 || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "_comment": "세션 종료 시 pending_patterns를 project_brain에 병합",
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd PROJECT_PATH && npx tsx scripts/sync-brain.ts 2>&1 || true"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "_comment": "에러 발생 시 로깅 (선택적)",
+        "matcher": "error",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[$(date +%Y-%m-%dT%H:%M:%S)] Error notification\" >> /tmp/claude-errors.log"
+          }
+        ]
+      }
+    ]
+  }
+}

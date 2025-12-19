@@ -1,0 +1,19 @@
+{
+  "name": "self-evolving-observability",
+  "version": "1.0.0",
+  "description": "Observability server for Self-Evolving Agent Expert System",
+  "main": "index.ts",
+  "scripts": {
+    "start": "bun run index.ts",
+    "dev": "bun --watch run index.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.2.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/js-yaml": "^4.0.9",
+    "prisma": "^7.2.0"
+  }
+}

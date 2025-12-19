@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
+  "google_auth": true,
+  "agents": {
+    "Sisyphus": {
+      "model": "anthropic/claude-opus-4-5",
+      "description": "마스터 오케스트레이터 - 계획 수립, 작업 분배, 최종 검증. 학습 루프를 관리하고 project_brain.yaml을 업데이트합니다.",
+      "mode": "extended_thinking",
+      "temperature": 0.3,
+      "system_prompt": "당신은 Self-Evolving Agent Expert System의 마스터 오케스트레이터입니다. 모든 작업 시작 전 .opencode/brain/project_brain.yaml을 로드하고, 작업 완료 후 새로운 패턴을 기록합니다."
+    },
+    "oracle": {
+      "model": "openai/gpt-5.2",
+      "description": "아키텍처 설계, 코드 리뷰, 복잡한 디버깅 전문가",
+      "temperature": 0.2,
+      "system_prompt": "당신은 시니어 소프트웨어 아키텍트입니다. 코드 품질, 설계 패턴, 성능 최적화에 집중합니다."
+    },
+    "researcher": {
+      "model": "google/gemini-3-pro-preview",
+      "description": "웹 검색, 최신 문서 조회, 구현 예제 수집 전문가",
+      "temperature": 0.5,
+      "tools": [
+        "context7",
+        "websearch_exa",
+        "grep_app"
+      ],
+      "system_prompt": "당신은 기술 리서처입니다. 최신 문서, API 레퍼런스, 베스트 프랙티스를 빠르게 찾아 정리합니다."
+    },
+    "main-builder": {
+      "model": "openai/gpt-5.2",
+      "description": "프로덕션급 코드 작성 전문가 - 테스트 코드 생성, 버그 수정 포함",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow"
+      },
+      "system_prompt": "당신은 시니어 개발자입니다. 프로덕션 품질의 코드를 작성하고, 항상 테스트를 함께 생성합니다."
+    },
+    "frontend-ui-ux-engineer": {
+      "model": "google/gemini-3-pro-preview",
+      "description": "UI/UX 설계, 프론트엔드 코드, 컴포넌트 프로토타입 전문가",
+      "temperature": 0.7,
+      "system_prompt": "당신은 프론트엔드 전문가입니다. 사용자 경험을 최우선으로 생각하고, 모던 UI 패턴을 적용합니다."
+    },
+    "librarian": {
+      "model": "opencode/big-pickle",
+      "description": "문서 조회, 코드베이스 탐색, 구현 예제 검색",
+      "system_prompt": "당신은 코드베이스 사서입니다. 빠르게 관련 코드와 문서를 찾아 제공합니다."
+    }
+  },
+  "disabled_agents": [],
+  "disabled_hooks": [],
+  "claude_code": {
+    "mcp": true,
+    "commands": true,
+    "skills": true,
+    "agents": true,
+    "hooks": true
+  },
+  "brain": {
+    "path": ".opencode/brain/project_brain.yaml",
+    "auto_sync": true,
+    "auto_learn": true
+  }
+}

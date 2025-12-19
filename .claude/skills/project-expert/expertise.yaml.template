@@ -1,0 +1,125 @@
+# Project Expertise File
+# 이 파일은 project-expert 스킬이 자동으로 생성하고 업데이트합니다.
+# 수동 편집하지 마세요.
+
+# ============================================================
+# 프로젝트 정보
+# ============================================================
+project:
+  name: ""                    # 프로젝트 이름
+  type: ""                    # web-app, cli, library, api, etc.
+  language: ""                # python, javascript, typescript, etc.
+  framework: ""               # fastapi, django, react, etc.
+  version: ""                 # 프로젝트 버전
+  
+# ============================================================
+# 구조
+# ============================================================
+structure:
+  # 주요 디렉토리
+  directories: []
+  # 예시:
+  # - path: "src/"
+  #   purpose: "소스 코드"
+  #   file_count: 25
+  
+  # 핵심 파일
+  key_files: []
+  # 예시:
+  # - path: "src/main.py"
+  #   purpose: "앱 진입점"
+  #   exports: ["app", "create_app"]
+  
+  # 설정 파일
+  config_files: []
+  # 예시:
+  # - path: "pyproject.toml"
+  #   type: "python-project"
+
+# ============================================================
+# 컴포넌트
+# ============================================================
+components:
+  # 주요 모듈/클래스
+  modules: []
+  # 예시:
+  # - name: "UserService"
+  #   path: "src/services/user.py"
+  #   purpose: "사용자 관련 비즈니스 로직"
+  #   dependencies: ["UserRepository", "EmailService"]
+  
+  # 핵심 함수
+  functions: []
+  # 예시:
+  # - name: "authenticate"
+  #   path: "src/auth/jwt.py:45"
+  #   purpose: "JWT 토큰 검증"
+  #   parameters: ["token: str"]
+  #   returns: "User"
+
+# ============================================================
+# 패턴
+# ============================================================
+patterns: []
+# 예시:
+# - name: "Repository Pattern"
+#   description: "데이터 접근 추상화"
+#   locations: ["src/repositories/"]
+#   confidence: 0.9
+
+# ============================================================
+# 의존성
+# ============================================================
+dependencies:
+  production: []
+  # 예시:
+  # - name: "fastapi"
+  #   version: "0.100.0"
+  
+  development: []
+  # 예시:
+  # - name: "pytest"
+  #   version: "7.0.0"
+
+# ============================================================
+# 학습 기록
+# ============================================================
+learnings: []
+# 예시:
+# - date: "2024-12-09T10:00:00Z"
+#   topic: "인증 시스템 분석"
+#   details: "JWT 기반 인증, refresh token 지원"
+#   files_analyzed:
+#     - "src/auth/jwt.py"
+#     - "src/auth/dependencies.py"
+#   confidence: 0.9
+
+# ============================================================
+# 주의사항
+# ============================================================
+warnings: []
+# 예시:
+# - "src/legacy/는 deprecated, 사용하지 마세요"
+# - "database.py의 connection pooling 주의"
+
+# ============================================================
+# 메트릭
+# ============================================================
+metrics:
+  files_known: 0
+  directories_known: 0
+  functions_known: 0
+  classes_known: 0
+  patterns_identified: 0
+  confidence: 0.0           # 0.0 - 1.0
+  last_sync: ""             # ISO 8601 timestamp
+  sync_count: 0             # 동기화 횟수
+
+# ============================================================
+# 메타데이터
+# ============================================================
+metadata:
+  created_at: ""
+  updated_at: ""
+  version: "1.0.0"
+  created_by: "project-expert"

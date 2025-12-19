@@ -1,0 +1,25 @@
+# SuperClaude 명령어 실행 로그
+# 최근 100개 명령어 기록
+# 마지막 업데이트: 2025-12-17T17:34:40.182Z
+
+entries:
+  - timestamp: 2025-12-17T17:34:40.178Z
+    command: /sc:build
+    result: success
+    tool_name: SlashCommand
+    pattern_generated: true
+  - timestamp: 2025-12-17T17:33:15.276Z
+    command: /sc:test sample
+    result: success
+    tool_name: Skill
+    pattern_generated: true
+  - timestamp: 2025-12-17T17:30:38.062Z
+    command: /sc:implement test
+    result: success
+    tool_name: SlashCommand
+    pattern_generated: true
+stats:
+  total_commands: 3
+  success_count: 3
+  failure_count: 0
+  patterns_generated: 3
