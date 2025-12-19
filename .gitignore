@@ -10,6 +10,9 @@ node_modules/
 .vscode/
 .idea/
 
+# Environment-specific settings (generated from templates)
+.claude/settings.json
+
 # OS
 .DS_Store
 Thumbs.db

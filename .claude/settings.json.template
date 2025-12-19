@@ -1,0 +1,105 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{PROJECT_ROOT}}/observability/scripts/ensure-server.sh 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "bash {{PROJECT_ROOT}}/observability/hooks/observability-wrapper.sh claude-code SessionStart"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{PROJECT_ROOT}}/observability/hooks/observability-wrapper.sh claude-code UserPromptSubmit --summarize"
+          }
+        ]
+      },
+      {
+        "matcher": "^/sc:",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[SC-LOG] $(date -Iseconds) Prompt: ${CLAUDE_PROMPT:-unknown}\" >> {{PROJECT_ROOT}}/.opencode/brain/sc_commands.log 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Task|Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{PROJECT_ROOT}}/observability/hooks/observability-wrapper.sh claude-code PreToolUse"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{PROJECT_ROOT}}/observability/hooks/observability-wrapper.sh claude-code PostToolUse"
+          }
+        ]
+      },
+      {
+        "matcher": "SlashCommand|Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{PROJECT_ROOT}}/scripts/hook-wrapper.sh success"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{PROJECT_ROOT}}/observability/hooks/observability-wrapper.sh claude-code PostToolUseFailure"
+          }
+        ]
+      },
+      {
+        "matcher": "SlashCommand|Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{PROJECT_ROOT}}/scripts/hook-wrapper.sh failure"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash {{PROJECT_ROOT}}/observability/hooks/observability-wrapper.sh claude-code Stop --summarize"
+          },
+          {
+            "type": "command",
+            "command": "cd {{PROJECT_ROOT}} && npx tsx scripts/sync-brain.ts 2>&1 || true"
+          }
+        ]
+      }
+    ]
+  }
+}

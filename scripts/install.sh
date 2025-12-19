@@ -206,6 +206,14 @@ install_systemd_service() {
 finish_installation() {
     echo -e "${CYAN}[6/6]${NC} Finishing installation..."
 
+    # Claude Code settings.json 생성 (경로 치환)
+    if [[ -f "$PROJECT_ROOT/.claude/settings.json.template" ]]; then
+        echo -e "  ${CYAN}→${NC} Generating .claude/settings.json with project paths..."
+        sed "s|{{PROJECT_ROOT}}|$PROJECT_ROOT|g" \
+            "$PROJECT_ROOT/.claude/settings.json.template" > "$PROJECT_ROOT/.claude/settings.json"
+        echo -e "  ${GREEN}✓${NC} Claude Code settings configured"
+    fi
+
     # 초기 brain 동기화
     if [[ -f "$PROJECT_ROOT/.opencode/brain/project_brain.yaml" ]]; then
         sed -i "s/last_sync:.*/last_sync: \"$(date -Iseconds)\"/" \

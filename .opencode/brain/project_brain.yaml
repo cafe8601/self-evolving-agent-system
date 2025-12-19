@@ -970,6 +970,29 @@ learned_patterns:
       - api-cost-saving
     related_files:
       - scripts/crud-generator.sh
+  - id: LP-044
+    context: Observability 서버 SessionStart 자동 시작
+    status: SUCCESS_PATTERN
+    content: |
+      Claude Code 세션 시작 시 Observability 서버 자동 시작 패턴:
+      - ensure-server.sh: 서버가 없으면 시작, 있으면 스킵
+      - curl health check 우선: 가장 빠른 확인 방법
+      - 백그라운드 시작: 세션 시작 블로킹 방지
+      - 실패해도 세션 진행: || true로 실패 무시
+      - Hook 순서: ensure-server.sh → observability-wrapper.sh
+      핵심: 자동 시작하되 세션 시작을 블로킹하지 않음
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-20T08:01:00+09:00
+    confidence: 0.88
+    tags:
+      - observability
+      - automation
+      - hooks
+      - session-start
+      - background-process
+    related_files:
+      - observability/scripts/ensure-server.sh
+      - .claude/settings.json
 
   - id: "LP-001"
     context: "기능 추가: : Complete self-evolving agent system with portable scripts
@@ -1003,6 +1026,31 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
       - ".claude/settings.json"
       - ".claude/skills/api-expert/SKILL.md"
       - ".claude/skills/api-expert/cookbook/fastapi-guide.md"
+
+  - id: "LP-002"
+    context: "버그 수정: : Make observability hooks portable with dynamic paths
+
+- Update mdflow-wrapper.sh to use dynamic PROJECT_DIR
+- Update observability-wrapper.sh to use dynamic PROJECT_DIR
+- Update opencode-wrapper.sh to use dynamic PROJECT_DIR
+- Update pattern-detector.ts to resolve paths relative to script location
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+    status: "SUCCESS_PATTERN"
+    content: |
+      Changed 7 file(s): .opencode/brain/patterns/success/LP-001----Complete-self-evolving-agen.md .opencode/brain/project_br
+    learned_at: "2025-12-19T23:53:19+09:00"
+    confidence: 0.8
+    tags:
+      - bugfix
+    related_files:
+      - ".opencode/brain/patterns/success/LP-001----Complete-self-evolving-agen.md"
+      - ".opencode/brain/project_brain.yaml"
+      - ".opencode/logs/commit_2025-12-19_23-16-12.json"
+      - "observability/hooks/mdflow-wrapper.sh"
+      - "observability/hooks/observability-wrapper.sh"
 skill_integration:
   git-expert:
     path: .claude/skills/git-expert/
@@ -1057,7 +1105,7 @@ skill_integration:
       - build
     description: 빠른 개발 명령
 workflow_history:
-  last_sync: "2025-12-19T23:16:12+09:00"
+  last_sync: "2025-12-19T23:53:19+09:00"
   total_tasks: 17
   successful_tasks: 17
   failed_tasks: 0
@@ -1294,12 +1342,12 @@ workflow_history:
         - JWT 인증/utils/api-client.ts
         - JWT 인증/api/auth.routes.ts
 metrics:
-  patterns_learned: 143
-  patterns_applied: 35
-  evolution_cycles: 27
-  confidence_average: .842
+  patterns_learned: 1144
+  patterns_applied: 36
+  evolution_cycles: 29
+  confidence_average: .821
   by_status:
-    success_patterns: 43
+    success_patterns: 45
     failure_patterns: 1
   by_tag:
     authentication: 4
