@@ -1140,6 +1140,1335 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
       - ".gitignore"
       - ".opencode/brain/project_brain.yaml"
       - "observability/scripts/ensure-server.sh"
+
+  - id: LP-047
+    context: WSL 환경 Chrome 및 Claude Extension 설정
+    status: SUCCESS_PATTERN
+    content: |
+      WSL 환경에서 Chrome 브라우저 및 Claude extension 설정 패턴:
+      - Chrome 설치 확인: which google-chrome, dpkg -l | grep chrome
+      - WSLg 확인: ls /mnt/wslg/, echo $DISPLAY (보통 :0)
+      - Chrome headless 테스트: google-chrome --headless --dump-dom URL
+      - GUI 모드 실행: google-chrome URL &
+      - Claude extension: Chrome Web Store에서 수동 설치 필요
+      - Claude CLI 병행 사용: claude 명령어로 터미널에서 직접 사용 (권장)
+      핵심: WSLg가 활성화되어 있으면 WSL에서 Chrome GUI 실행 가능
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-20T12:52:00+09:00
+    confidence: 0.9
+    tags:
+      - wsl
+      - chrome
+      - extension
+      - gui
+      - wslg
+      - setup
+    related_files:
+      - .opencode/brain/project_brain.yaml
+
+  - id: LP-048
+    context: WSL Chrome 한글 폰트 깨짐 해결
+    status: SUCCESS_PATTERN
+    content: |
+      WSL Chrome에서 한글이 네모로 표시될 때 해결 패턴:
+      - 원인: 한글 폰트 미설치 (fc-list :lang=ko 결과 없음)
+      - 필수 폰트 설치: sudo apt-get install fonts-noto-cjk fonts-nanum
+      - 추가 폰트: fonts-noto-cjk-extra fonts-nanum-extra fonts-nanum-coding
+      - fontconfig 설정: ~/.config/fontconfig/fonts.conf
+        - sans-serif → Noto Sans CJK KR, NanumGothic
+        - serif → Noto Serif CJK KR, NanumMyeongjo
+        - monospace → Noto Sans Mono CJK KR, NanumGothicCoding
+      - 캐시 갱신: fc-cache -fv
+      - Chrome 재시작 필수: pkill chrome && google-chrome &
+      핵심: fonts-noto-cjk 하나면 한중일 모두 커버, fontconfig로 우선순위 설정
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-20T12:55:00+09:00
+    confidence: 0.95
+    tags:
+      - wsl
+      - chrome
+      - korean-font
+      - fontconfig
+      - noto-cjk
+      - nanum
+      - tofu
+    related_files:
+      - ~/.config/fontconfig/fonts.conf
+
+  - id: LP-049
+    context: ACE V5 기반 자율 학습 에이전트 구현
+    status: SUCCESS_PATTERN
+    content: |
+      ACE V5 아키텍처 기반 자율 학습 에이전트 구현 패턴:
+      - Teacher-Student 증류: GPT-5.2 (추론/평가) + GPT-5-nano (실행)
+      - 복잡도 기반 라우팅: 키워드 분석 → 실행 모드 결정 (LP-035 확장)
+      - 패턴 검색: Jaccard 유사도 기반 관련 패턴 찾기
+      - 진화 엔진: 패턴 추출 → 클러스터링 → 병합 → 폐기 (LP-037 확장)
+      - 영속성: JSON/YAML 듀얼 저장, auto_save, _dirty 플래그
+      - 피드백 학습: positive/negative 피드백으로 신뢰도 조정
+      - 자동 진화: N번 실행마다 자동 진화 사이클
+      핵심: Teacher 계획 → Student 실행 → Teacher 평가 → 패턴 학습 루프
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-22T10:00:00+09:00
+    confidence: 0.92
+    tags:
+      - ace-framework
+      - self-learning
+      - teacher-student
+      - evolution-engine
+      - pattern-learning
+      - openrouter
+      - distillation
+    related_files:
+      - self-learning-agent/core/agent.py
+      - self-learning-agent/learning/evolution_engine.py
+      - self-learning-agent/main.py
+
+  - id: LP-050
+    context: Claude Code Skill 파일 구조 - 3-Level 아키텍처 위반 수정
+    status: SUCCESS_PATTERN
+    content: |
+      Skill 파일 작성 시 3-Level Loading Architecture 필수 준수:
+      - Level 1 (YAML frontmatter): 30-50 토큰 이내 메타데이터만
+      - Level 2 (SKILL.md 본문): 500줄 미만, 지침과 예제만
+      - Level 3 (resources/): 코드, 상세 문서는 별도 파일로 분리
+
+      위반 사례: SKILL.md에 Python 코드 직접 삽입 (240줄+)
+      - 문제: 토큰 낭비, 로딩 비효율, 유지보수 어려움
+      - 해결: resources/ace_v5.py로 분리, SKILL.md는 참조 링크만 포함
+
+      올바른 구조:
+      skill-name/
+      ├── SKILL.md           # L2: 지침, 예제, 참조 링크
+      └── resources/         # L3: 코드, 상세 문서
+          ├── main_code.py
+          └── architecture.md
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-22T15:45:00+09:00
+    confidence: 0.95
+    tags:
+      - skill-architecture
+      - 3-level-loading
+      - token-efficiency
+      - code-separation
+      - best-practices
+    related_files:
+      - .claude/skills/ace-builder/SKILL.md
+      - .claude/skills/ace-builder/resources/ace_v5.py
+      - .claude/skills/ace-builder/resources/architecture.md
+
+  - id: LP-051
+    context: ace-builder 스킬 기반 프로젝트 검증 및 개선
+    status: SUCCESS_PATTERN
+    content: |
+      스킬 기반 프로젝트 생성 후 검증 체크리스트:
+
+      1. 파일 구조 검증:
+         - ace_bot.py 또는 main.py 존재 확인
+         - requirements.txt 의존성 확인
+         - .env.example 설정 템플릿
+         - .gitignore 보안 설정
+         - skills/ 디렉토리
+
+      2. 핵심 기능 검증:
+         - Teacher-Student 모델 구성
+         - ChromaDB 하이브리드 메모리
+         - 복잡도 기반 라우팅
+         - MCP 통합 포인트
+         - 멀티모달 핸들러
+
+      3. 누락 기능 보완:
+         - 모듈 분리 구조 → memory/, handlers/ 추가
+         - JSON 저장만 → ChromaDB 통합
+         - 텍스트만 → 이미지/오디오 지원
+
+      검증 후 개선 시 원본 스킬(ace_v5.py)과 비교하여
+      누락된 핵심 기능을 추가하고, 구조적 차이는 유지 가능
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-22T16:00:00+09:00
+    confidence: 0.88
+    tags:
+      - code-review
+      - ace-framework
+      - project-validation
+      - skill-integration
+      - quality-assurance
+    related_files:
+      - self-learning-agent/core/agent.py
+      - self-learning-agent/memory/hybrid_memory.py
+      - self-learning-agent/handlers/multimodal.py
+
+  - id: LP-054
+    context: Claude Code Plugin 등록 절차
+    status: SUCCESS_PATTERN
+    content: |
+      스킬을 Plugin으로 등록하는 절차:
+
+      1. 디렉토리 구조 생성:
+         ~/.claude/plugins/cache/{marketplace}/{plugin-name}/{version}/
+         ├── .claude-plugin/config.json  # 필수: name, description, version, author
+         ├── README.md                    # 플러그인 설명
+         ├── commands/                    # 명령어 정의
+         │   └── {command-name}.md       # YAML frontmatter + 실행 가이드
+         └── resources/                   # 리소스 파일
+             └── *.py, *.md              # 코드, 문서 등
+
+      2. config.json 형식:
+         {
+           "name": "plugin-name",
+           "description": "설명",
+           "version": "X.Y.Z",
+           "author": {"name": "...", "email": "..."}
+         }
+
+      3. command.md 형식:
+         ---
+         description: 명령어 설명
+         argument-hint: [인자 힌트]
+         ---
+         # 명령어 실행 가이드
+
+      4. installed_plugins.json 등록:
+         "plugin-name@marketplace": [{
+           "scope": "user",
+           "installPath": "전체 경로",
+           "version": "X.Y.Z",
+           "installedAt": "ISO8601",
+           "lastUpdated": "ISO8601",
+           "isLocal": true
+         }]
+
+      5. Claude Code 재시작 후 /plugin-name으로 호출 가능
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-22T17:40:00+09:00
+    confidence: 0.92
+    tags:
+      - plugin
+      - skill-registration
+      - claude-code
+      - configuration
+    related_files:
+      - ~/.claude/plugins/installed_plugins.json
+      - ~/.claude/plugins/cache/self-evolving-agent-system/ace-builder/5.0.0/
+
+  - id: LP-053
+    context: 모델 구성 문서화 및 라우팅 전략
+    status: SUCCESS_PATTERN
+    content: |
+      멀티 모델 시스템 문서화 시 필수 요소:
+
+      1. 모델 역할 명시:
+         - Teacher (고급 추론): GPT-5.2
+         - Student Medium (균형): GPT-5-mini
+         - Student Fast (비용 최적): GPT-5-nano
+         - Vision (멀티모달): Gemini-3-flash
+
+      2. 라우팅 임계값 명시:
+         - simple: 0~0.3 → nano
+         - medium: 0.3~0.6 → mini
+         - complex: 0.6~1.0 → teacher
+         - vision: 이미지 감지 시 → gemini
+
+      3. 비용 분배 가이드:
+         - Teacher 사용률 10% 이하 목표
+         - nano 사용률 50~60% 목표
+
+      4. 모델별 권장/비권장 용도 테이블 제공
+
+      사용자가 특정 모델만 사용할 경우,
+      해당 모델들에 맞게 문서 전체를 일관되게 수정
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-22T17:00:00+09:00
+    confidence: 0.88
+    tags:
+      - documentation
+      - model-routing
+      - cost-optimization
+      - ace-framework
+    related_files:
+      - .claude/skills/ace-builder/ACE_BUILDER_GUIDEBOOK.md
+
+  - id: LP-052
+    context: 스킬 가이드북 작성 및 사용자 문서화
+    status: SUCCESS_PATTERN
+    content: |
+      스킬 가이드북 작성 시 핵심 구성 요소:
+
+      1. 스킬 소개 및 핵심 특징
+         - 아키텍처 다이어그램
+         - 활성화 트리거 목록
+
+      2. 만들 수 있는 것들 (What You Can Build)
+         - 5개 내외 주요 유형 분류
+         - 각 유형별 특징과 장점
+
+      3. 요청 예시 모음 (Example Requests)
+         - 기본 생성 (10+ 예시)
+         - 특화 에이전트 (10+ 예시)
+         - 도메인 특화 (10+ 예시)
+         - 고급 설정 (5+ 예시)
+
+      4. 프로젝트 유형별 가이드
+         - Type A: 빠른 프로토타입 (MVP)
+         - Type B: 표준 프로덕션
+         - Type C: 엔터프라이즈급
+         - 각 유형별 생성 구조 및 설정 시간
+
+      5. 커스터마이징 옵션
+         - 모델 변경 (.env 예시)
+         - 진화 파라미터 (settings.yaml)
+         - 복잡도 라우팅 설정
+         - 스킬 추가 방법
+
+      6. 베스트 프랙티스
+         - 보안, 비용 최적화, 메모리 관리, 진화 전략
+
+      7. 트러블슈팅
+         - 자주 발생하는 문제 5개+
+         - 각 문제별 해결 방법
+
+      8. 빠른 시작 (Quick Start)
+         - 30초 빠른 시작 가이드
+         - 첫 번째 대화 예시
+
+      가이드북은 기술 문서가 아닌 사용자 친화적 문서로,
+      실제 요청 예시를 풍부하게 제공하여 사용 진입장벽 낮춤
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-22T16:20:00+09:00
+    confidence: 0.90
+    tags:
+      - documentation
+      - user-guide
+      - skill-design
+      - best-practices
+      - ace-framework
+    related_files:
+      - .claude/skills/ace-builder/ACE_BUILDER_GUIDEBOOK.md
+      - .claude/skills/ace-builder/SKILL.md
+
+  - id: "LP-004"
+    context: "기능 추가: : Add LP-046 pattern and reorganize documentation
+
+Changes:
+- Add LP-046: Claude Code CLI integration limitations pattern
+  - Documents OpenCode/MDFlow/Codex/Gemini CLI execution constraints
+  - TTY requirements, nested session issues, timeout behaviors
+- Move documentation files to doc/ directory for better organization
+- Update project_brain metrics (49 patterns, 32 evolution cycles)
+- Add success pattern files for LP-002, LP-003
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+    status: "SUCCESS_PATTERN"
+    content: |
+      Changed 19 file(s): .opencode/brain/patterns/success/LP-002----Make-observability-hooks-po.md .opencode/brain/patterns/s
+    learned_at: "2025-12-20T01:23:52+09:00"
+    confidence: 0.8
+    tags:
+      - database
+      - feature
+    related_files:
+      - ".opencode/brain/patterns/success/LP-002----Make-observability-hooks-po.md"
+      - ".opencode/brain/patterns/success/LP-003----Add-auto-start-observabilit.md"
+      - ".opencode/brain/pending_patterns.yaml"
+      - ".opencode/brain/project_brain.yaml"
+      - ".opencode/logs/commit_2025-12-19_23-53-19.json"
+
+  - id: LP-056
+    context: 트리거 기반 라우팅 비용/속도 최적화
+    status: SUCCESS_PATTERN
+    content: |
+      트리거 키워드 기반 라우팅에서 비용/속도 최적화 핵심:
+
+      1. 설정과 구현 분리 문제:
+         - ace_config.yaml에 설정만 추가하면 실제 동작 안함
+         - 반드시 Router 코드에서 설정을 읽고 라우팅 로직 구현
+
+      2. 비용 최적화 전략:
+         - 명시적 트리거만: 키워드 매칭 시에만 고비용 서비스 호출
+         - 기본 비활성화: enabled=false로 불필요한 호출 차단
+         - 타임아웃 설정: 30초 제한으로 hanging 방지
+
+      3. 속도 최적화 전략:
+         - Fallback 필수: 외부 서비스 실패 시 로컬 시스템으로 자동 전환
+         - 통계 추적: 호출 횟수 모니터링으로 비용 예측
+
+      4. 구현 체크리스트:
+         ✅ RouteDecision Enum에 새 타입 추가
+         ✅ _should_use_X() 메서드로 트리거 감지
+         ✅ decide()에서 조기 리턴 (Vision/WeKnora 우선)
+         ✅ _call_X() 메서드로 외부 호출 + 타임아웃
+         ✅ _fallback_to_Y() 메서드로 실패 복구
+
+      핵심: 설정 파일만 만들지 말고, 라우팅 코드까지 완성해야 실제 동작
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-23T13:00:00+09:00
+    confidence: 0.92
+    tags:
+      - routing
+      - cost-optimization
+      - speed-optimization
+      - fallback
+      - timeout
+      - implementation-pattern
+    related_files:
+      - .claude/skills/ace-builder/resources/ace_v5.py
+      - .claude/skills/ace-builder/resources/ace_config.yaml
+
+  - id: LP-055
+    context: RAG 시스템 선택 및 통합 전략
+    status: SUCCESS_PATTERN
+    content: |
+      RAG 시스템 평가 및 선택 시 핵심 판단 기준:
+
+      1. 복잡도 vs 필요성 매칭:
+         - 단순 메모리/검색: ChromaDB + SharedRAG (Google 무료 10GB)
+         - 복잡한 문서 (PDF 표, OCR, 관계 분석): WeKnora/LangGraph
+         - GraphRAG 필요: 문서 간 관계 그래프 구축 시에만
+
+      2. 대체가 아닌 "옵션" 접근:
+         - 기존 시스템 유지 + 고급 옵션 추가
+         - 트리거 키워드 기반 자동 라우팅 (graphrag, OCR, PDF 표)
+         - 점진적 도입으로 안정성 보장
+
+      3. WeKnora 도입 시점:
+         ✅ 적합: 1000+ 문서, PDF/표 분석, 데이터 주권, GraphRAG 필수
+         ❌ 불필요: 프로토타입, 가벼운 메모리, 비용 효율 우선
+
+      4. 통합 방식:
+         - MCP 서버로 연동 (기존 아키텍처 유지)
+         - ace_config.yaml에 advanced_rag 섹션 추가
+         - weknora_triggers로 자동 라우팅 설정
+
+      핵심: 새 기술 도입 시 "대체"보다 "옵션 추가"가 리스크 최소화
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-23T12:30:00+09:00
+    confidence: 0.88
+    tags:
+      - rag
+      - architecture
+      - weknora
+      - graphrag
+      - integration
+      - decision-making
+    related_files:
+      - .claude/skills/ace-builder/SKILL.md
+      - .claude/skills/ace-builder/resources/ace_config.yaml
+      - .claude/skills/ace-builder/resources/memory_lane.py
+      - .claude/skills/ace-builder/resources/shared_rag.py
+
+  - id: LP-057
+    context: 스킬 품질 개선 - 에러 핸들링과 테스트 코드
+    status: SUCCESS_PATTERN
+    content: |
+      스킬 품질 개선 시 핵심 영역:
+
+      1. 에러 핸들링 강화:
+         - 계층적 예외 클래스: ACEError → ConfigError, RouterError, APIError
+         - APIError는 status_code, response 속성 포함
+         - 운영 환경 디버깅을 위한 상세 정보 보존
+
+      2. 구조화된 로깅:
+         - logging 모듈 사용 (print 대신)
+         - 타임스탬프 + 레벨 + 컴포넌트 형식
+         - log_operation 데코레이터로 자동 타이밍 측정
+
+      3. 테스트 코드 구조:
+         - tests/ 디렉토리 분리
+         - conftest.py: pytest 설정 및 fixture
+         - test_ace_core.py: 핵심 기능 테스트
+         - 각 컴포넌트별 테스트 클래스 (TestSmartRouter, TestWeKnoraRouting 등)
+
+      4. 테스트 커버리지 대상:
+         - 설정 로딩 (default config 구조)
+         - 라우터 결정 (simple/medium/complex/vision/weknora)
+         - 복잡도 계산 (키워드 가중치, 길이 팩터)
+         - 에러 클래스 계층 구조
+         - 로깅 기능
+
+      핵심: 스킬은 "스캐폴딩 도구"이므로 생성된 코드의 품질 = 스킬의 품질
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-23T18:30:00+09:00
+    confidence: 0.85
+    tags:
+      - skill-quality
+      - error-handling
+      - testing
+      - logging
+      - code-quality
+    related_files:
+      - .claude/skills/ace-builder/resources/ace_v5.py
+      - .claude/skills/ace-builder/resources/tests/test_ace_core.py
+      - .claude/skills/ace-builder/resources/tests/conftest.py
+
+  - id: LP-058
+    context: 스킬 문서화 - 에이전트 유형 카탈로그 작성
+    status: SUCCESS_PATTERN
+    content: |
+      스킬의 사용성을 높이는 포괄적 문서화 전략:
+
+      1. 문서 계층 구조 (3-tier):
+         - SKILL.md: L2 핵심 지침 (500줄 미만)
+         - GUIDEBOOK.md: 빠른 시작 + API 레퍼런스
+         - AGENT_TYPES_CATALOG.md: 상세 유형별 가이드
+
+      2. 에이전트 유형 분류 체계:
+         - 역할 기반: Code Review, Research, Support, Analytics
+         - 도메인 기반: Engineering, Business, Legal, Medical
+         - 특성 기반: Multimodal, Self-Evolving, Memory-Centric
+
+      3. 요청 예제 구조:
+         - 한국어/영어 이중 제공
+         - 활성화되는 컴포넌트 명시 (Router, Memory, Skills)
+         - 예상 동작 흐름 시각화
+         - 메모리 타입 활성화 설명
+
+      4. 카탈로그 필수 섹션:
+         - Agent Types Overview (매트릭스)
+         - 유형별 상세 설명 (8개 카테고리)
+         - Request Examples Catalog (50+ 예제)
+         - Customization Guide
+         - Best Practices by Agent Type
+
+      핵심: "어떻게 쓰는지" 뿐만 아니라 "무엇을 만들 수 있는지"를 보여줌
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-23T19:00:00+09:00
+    confidence: 0.88
+    tags:
+      - documentation
+      - skill-design
+      - user-guide
+      - agent-types
+      - catalog
+    related_files:
+      - .claude/skills/ace-builder/ACE_AGENT_TYPES_CATALOG.md
+      - .claude/skills/ace-builder/SKILL.md
+      - .claude/skills/ace-builder/ACE_BUILDER_GUIDEBOOK.md
+
+  - id: LP-059
+    context: 학습 이력 기반 맞춤 교육 에이전트 구현
+    status: SUCCESS_PATTERN
+    content: |
+      ACE Framework V5.2 기반 적응형 튜터 에이전트 구현 패턴:
+
+      1. Memory Lane 학습 전용 확장:
+         - LearningMemoryType 6가지: mastery, struggle, correction, insight, preference, gap
+         - 에피소드 저장: 질문, 답변, 피드백, 시간, 힌트 사용 기록
+         - 숙달도 추적: EMA(α=0.3) 기반 개념별 점수 업데이트
+         - 복습 스케줄: Spaced Repetition (1,3,7,14,30일)
+
+      2. Teacher-Student 역할 분리:
+         - CurriculumDesigner (Teacher): 커리큘럼 설계, 응답 평가, 메모리 타입 분류
+         - ExplainerAgent (Medium): 개념 설명 생성 (레벨/스타일 맞춤)
+         - QuizGenerator (Fast): 퀴즈 문제 생성 (난이도 동적 조절)
+
+      3. 개인화 요소:
+         - LearnerProfile: 레벨, 학습 스타일, 숙달 점수, 어려운 주제
+         - Learning Style Detection: 시각/청각/실습 성공률 분석
+         - Adaptive Difficulty: 숙달도 기반 난이도 자동 조절
+
+      4. 핵심 API:
+         - start_lesson(topic): 맞춤형 레슨 시작
+         - explain(concept): 개념 설명 (스타일/레벨 반영)
+         - quiz(concept, difficulty): 퀴즈 생성
+         - answer(response): 답변 평가 + 메모리 저장
+         - review_session(): 복습 필요 개념 조회
+         - get_progress_report(): 학습 진행 리포트
+
+      핵심: Memory Lane + Teacher 평가 → 개인화된 학습 경험 + 장기 기억 형성
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-23T22:00:00+09:00
+    confidence: 0.9
+    tags:
+      - education
+      - adaptive-learning
+      - personalization
+      - spaced-repetition
+      - memory-lane
+      - ace-framework
+    related_files:
+      - adaptive-tutor-agent/
+
+  - id: LP-060
+    context: 에이전트 구축 시 단일 파일 생성 실수
+    status: FAILURE_PATTERN
+    content: |
+      ACE Builder 스킬로 에이전트를 구축할 때 흔한 실수:
+
+      ❌ 잘못된 접근:
+      - 모든 코드를 단일 파일(agent.py)에 작성
+      - 600줄+ 거대 파일 생성
+      - 설정, 메모리, 핸들러 미분리
+
+      ✅ 올바른 접근:
+      - 프로젝트 폴더 구조 생성 필수
+      - ACE Builder 표준 구조 준수:
+        agent-name/
+        ├── config/
+        │   ├── settings.yaml    # 설정 파일
+        │   └── loader.py        # 설정 로더
+        ├── core/
+        │   ├── agent.py         # 메인 에이전트
+        │   └── *.py             # 핵심 로직
+        ├── memory/
+        │   └── *.py             # Memory Lane 확장
+        ├── handlers/
+        │   └── *.py             # 도메인 핸들러
+        ├── skills/              # 도메인 스킬 (.md)
+        ├── tests/
+        ├── main.py
+        ├── requirements.txt
+        └── README.md
+
+      핵심: "에이전트 구축 = 프로젝트 스캐폴딩"이라는 인식 필요
+    model_used: claude-opus-4-5
+    learned_at: 2025-12-23T22:30:00+09:00
+    confidence: 0.95
+    tags:
+      - scaffolding
+      - project-structure
+      - ace-builder
+      - agent-construction
+      - failure-pattern
+    related_files:
+      - .claude/skills/ace-builder/SKILL.md
+
+  - id: LP-061
+    context: 에이전트 컴포넌트 테스트 및 버그 수정
+    status: SUCCESS_PATTERN
+    content: |
+      adaptive-tutor-agent 시스템 테스트에서 발견된 패턴:
+
+      1. 상대 import 문제:
+         - Python 프로젝트에서 상대 import (from ..module) 사용 시
+           __init__.py에서도 상대 import 사용하면 순환 참조 발생
+         - 해결: 절대 import 사용 (from module.submodule import ...)
+
+      2. ChromaDB 필터 제약:
+         - $lte, $gte 연산자는 숫자만 지원
+         - 날짜 비교 시 ISO 문자열 사용 불가
+         - 해결: Unix timestamp (int)로 저장하고 비교
+
+      3. dotenv 로드:
+         - OpenAI 클라이언트 초기화 전 load_dotenv() 필수
+         - .env 파일이 프로젝트 루트에 있어야 함
+
+      4. 모듈 테스트 순서:
+         - config → memory → core → handlers → agent 순서 테스트
+         - 의존성 방향대로 테스트해야 문제 조기 발견
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-23T15:30:00+09:00"
+    confidence: 0.9
+    tags:
+      - testing
+      - python-import
+      - chromadb
+      - dotenv
+      - dependency-order
+    related_files:
+      - adaptive-tutor-agent/memory/learning_memory.py
+      - adaptive-tutor-agent/core/agent.py
+      - adaptive-tutor-agent/core/__init__.py
+      - adaptive-tutor-agent/handlers/__init__.py
+  - id: LP-062
+    context: Claude Code LSP 플러그인 설치 및 활용
+    status: SUCCESS_PATTERN
+    content: |
+      claude-code-lsps 플러그인 설치 및 활용 패턴:
+
+      1. 두 가지 주요 마켓플레이스:
+         - Piebald-AI/claude-code-lsps: tweakcc 패치 필요
+         - boostvolt/claude-code-lsps: 더 직접적인 접근 (권장)
+
+      2. 설치 전 필수 설정:
+         - export ENABLE_LSP_TOOL=1 환경 변수 설정
+         - 각 언어별 LSP 서버 사전 설치 필요
+
+      3. 지원 언어 및 서버:
+         - TypeScript/JS: vtsls (npm install -g @vtsls/language-server)
+         - Python: pyright (pip install pyright)
+         - Go: gopls (go install golang.org/x/tools/gopls@latest)
+         - Rust: rust-analyzer (rustup component add)
+         - Java: jdtls, C/C++: clangd, PHP: Intelephense 등
+
+      4. LSP Tool 제공 기능:
+         - goToDefinition: 정의 위치로 이동
+         - findReferences: 모든 참조 찾기
+         - hover: 타입 정보 및 문서 표시
+         - documentSymbol: 파일 내 심볼 목록
+         - workspaceSymbol: 워크스페이스 전체 심볼 검색
+
+      5. 알려진 이슈:
+         - LSP Manager race condition (GitHub #14932)
+         - 플러그인 로드 전 LSP 초기화로 인한 에러
+         - Claude Code 업데이트 시 tweakcc 재적용 필요
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-24T12:30:00+09:00"
+    confidence: 0.85
+    tags:
+      - lsp
+      - claude-code
+      - plugin
+      - code-intelligence
+      - ide-features
+    related_files:
+      - ~/.claude/settings.json
+      - ~/.claude/plugins/
+  - id: LP-063
+    context: Adaptive Tutor Agent 실행 및 venv 경로 문제 해결
+    status: SUCCESS_PATTERN
+    content: |
+      Python 에이전트 실행 시 venv 경로 문제 해결 패턴:
+
+      1. venv 인터프리터 경로 오류:
+         - venv가 다른 경로에서 생성되면 python 인터프리터 경로가 잘못됨
+         - "bad interpreter" 오류 발생 시 venv 재생성 필수
+         - rm -rf venv && python3 -m venv venv
+
+      2. 시스템 Python 보호 (PEP 668):
+         - "externally-managed-environment" 오류 시 venv 필수
+         - --break-system-packages 플래그 사용 지양
+         - 항상 프로젝트별 venv 사용 권장
+
+      3. Adaptive Tutor Agent 구조:
+         - ACE Framework V5.2 기반 멀티 에이전트
+         - Teacher(GPT-5.2) → 커리큘럼 설계/평가
+         - Explainer(GPT-5-mini) → 개념 설명
+         - Quizzer(GPT-5-nano) → 퀴즈 생성
+         - Memory Lane → 학습 이력 저장 (ChromaDB)
+
+      4. 성공적 실행 패턴:
+         - source venv/bin/activate && python main.py
+         - .env 파일에 OPENROUTER_API_KEY 설정 필수
+         - config/settings.yaml로 모델 설정 가능
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T00:55:00+09:00"
+    confidence: 0.9
+    tags:
+      - python
+      - venv
+      - adaptive-tutor
+      - agent-execution
+      - chromadb
+    related_files:
+      - Project/adaptive-tutor-agent/main.py
+      - Project/adaptive-tutor-agent/core/agent.py
+      - Project/adaptive-tutor-agent/.env
+      - Project/adaptive-tutor-agent/venv/
+  - id: LP-064
+    context: 에이전트 대화형 인터페이스 구현
+    status: SUCCESS_PATTERN
+    content: |
+      자연어 기반 대화형 에이전트 인터페이스 구현 패턴:
+
+      1. chat_loop() 함수 구조:
+         - while True 루프로 지속적 입력 대기
+         - input()으로 사용자 입력 받기
+         - KeyboardInterrupt 처리로 Ctrl+C 종료 지원
+         - 종료 키워드 ('quit', 'exit', '종료') 처리
+
+      2. process_user_request() 의도 분석:
+         - 키워드 기반 의도 분류 (레슨, 설명, 퀴즈, 진행상황 등)
+         - 정규표현식으로 주제/개념 추출
+         - 상태 기반 분기 (현재 퀴즈 존재 여부 등)
+         - 매칭 안되면 LLM에게 직접 질문
+
+      3. 핵심 함수 분리:
+         - extract_topic(): 학습 주제 추출
+         - extract_concept(): 개념명 추출
+         - ask_teacher_directly(): 폴백 LLM 호출
+
+      4. UX 고려사항:
+         - 명확한 프롬프트 (🧑 You:, 🤖 Tutor:)
+         - 사용 예시 안내 출력
+         - 오류 시 친절한 메시지
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T01:10:00+09:00"
+    confidence: 0.88
+    tags:
+      - chat-interface
+      - natural-language
+      - agent-ux
+      - intent-recognition
+    related_files:
+      - Project/adaptive-tutor-agent/core/agent.py
+
+  - id: LP-065
+    context: 멀티 에이전트 시스템 종합 테스트 설계
+    status: SUCCESS_PATTERN
+    content: |
+      Adaptive Tutor Agent 시스템의 7개 핵심 영역 테스트 패턴:
+
+      1. Smart Routing System (속도/비용 관리):
+         - ModelTier(TEACHER/MEDIUM/FAST) 기반 계층화
+         - 복잡도+긴급도+작업유형 조합으로 최적 모델 선택
+         - 캐시 기능으로 반복 요청 최적화
+         - 비용 및 지연 시간 메트릭 추적
+
+      2. MCP Server Integration:
+         - 서버 등록 → 연결 → 도구 호출 라이프사이클
+         - 스키마 기반 파라미터 검증
+         - async/await 패턴으로 비동기 처리
+
+      3. SKILL System (전문가 특화):
+         - 트리거 키워드 기반 스킬 감지
+         - 스킬별 시스템 프롬프트 동적 주입
+         - 전문성 평가 점수화
+
+      4. Memory System Efficiency:
+         - 6가지 LearningMemoryType 분류
+         - EMA 기반 숙달도 추적
+         - Spaced Repetition 복습 스케줄링
+
+      5. RAG Systems (ChromaDB vs Weknora):
+         - 단순/빠른 검색: ChromaDB
+         - 관계 기반 검색: Weknora (GraphRAG)
+         - 쿼리 특성에 따른 자동 라우팅
+
+      6. User Request Learning:
+         - 긍정 피드백에서 패턴 자동 추출
+         - 패턴 강화 (반복 사용 시 confidence 증가)
+         - 관련 패턴 검색으로 경험 재활용
+
+      7. Teacher-Student Self-Learning (Docker):
+         - Teacher가 참조 답변 생성 + Student 평가
+         - Student가 피드백으로 학습 (EMA 성능 업데이트)
+         - Docker 컨테이너로 격리된 학습 환경
+
+      테스트 결과: 59개 테스트 케이스 전체 통과 (26초)
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T01:45:00+09:00"
+    confidence: 0.92
+    tags:
+      - testing
+      - multi-agent
+      - smart-routing
+      - mcp-integration
+      - skill-system
+      - memory-system
+      - rag-system
+      - self-learning
+      - adaptive-tutor
+    related_files:
+      - Project/adaptive-tutor-agent/tests/test_comprehensive_suite.py
+      - Project/adaptive-tutor-agent/core/agent.py
+      - Project/adaptive-tutor-agent/memory/learning_memory.py
+
+  - id: LP-066
+    context: 멀티 에이전트 시스템 통합 아키텍처 검증
+    status: SUCCESS_PATTERN
+    content: |
+      7가지 기능이 잘 조직화되어 상호작용하는 통합 아키텍처 패턴:
+
+      ┌─────────────────────────────────────────────────────────────┐
+      │                    User Request                              │
+      │                         ↓                                    │
+      │  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐        │
+      │  │   SKILL     │←→│   ROUTER    │←→│    MCP      │        │
+      │  │   System    │   │   (Smart)   │   │  Servers   │        │
+      │  └─────────────┘   └─────────────┘   └─────────────┘        │
+      │         ↓                ↓                 ↓                 │
+      │  ┌─────────────────────────────────────────────────┐        │
+      │  │              MEMORY SYSTEM                       │        │
+      │  │  ┌─────────┐  ┌─────────┐  ┌─────────┐         │        │
+      │  │  │ChromaDB │  │ Weknora │  │Learning │         │        │
+      │  │  │  (RAG)  │  │(GraphRAG)│  │ Memory  │         │        │
+      │  │  └─────────┘  └─────────┘  └─────────┘         │        │
+      │  └─────────────────────────────────────────────────┘        │
+      │         ↓                                                    │
+      │  ┌─────────────────────────────────────────────────┐        │
+      │  │         TEACHER-STUDENT LEARNING                 │        │
+      │  └─────────────────────────────────────────────────┘        │
+      │         ↓                                                    │
+      │  ┌─────────────┐                                            │
+      │  │  User Req   │  ← Pattern extraction                      │
+      │  │  Learner    │                                            │
+      │  └─────────────┘                                            │
+      └─────────────────────────────────────────────────────────────┘
+
+      검증된 통합 포인트 (15개 테스트 통과):
+      1. Router ↔ Skill: 스킬 복잡도가 라우팅에 영향
+      2. Router ↔ MCP: 모델 계층에 따른 도구 선택
+      3. Skill ↔ RAG: 도메인 맞춤 문서 검색
+      4. Memory ↔ Teacher-Student: 학습 기록이 훈련에 반영
+      5. RAG ↔ Memory: 검색 결과와 학습 이력 결합
+      6. Learning ↔ Pattern: 긍정 피드백에서 패턴 자동 추출
+
+      핵심 메트릭:
+      - 컴포넌트 균형 호출 검증
+      - 캐시 효과성 검증
+      - 스킬 전환 자연스러움
+      - Memory 지속성
+      - Teacher-Student 개선 추세
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T02:00:00+09:00"
+    confidence: 0.94
+    tags:
+      - integration-testing
+      - architecture
+      - multi-agent
+      - data-flow
+      - system-design
+    related_files:
+      - Project/adaptive-tutor-agent/tests/test_integration_suite.py
+
+  - id: LP-067
+    context: Self-Evolving Agent System 종합 분석 문서화
+    status: SUCCESS_PATTERN
+    content: |
+      멀티 에이전트 시스템의 전체 개발 과정을 종합 분석 문서로 체계화하는 패턴:
+
+      1. 문서 구조:
+         - 시스템 아키텍처 다이어그램 (ASCII art)
+         - 핵심 모듈 구성표
+         - 각 기능별 테스트 케이스 및 결과
+         - 통합 테스트 결과 요약
+         - 발견된 패턴 및 학습 내용
+         - 권장 다음 단계
+
+      2. 테스트 문서화:
+         - 개별 기능 테스트 (59개): 목적, 주요 검증 로직, 결과
+         - 통합 테스트 (15개): 컴포넌트 상호작용 검증
+         - 성능 메트릭: 실행 시간, 캐시 히트율, 비용 효율성
+
+      3. 시스템 조직화 평가:
+         - 모듈 분리 점수 (⭐⭐⭐⭐⭐)
+         - 의존성 관리 점수
+         - 확장성 점수
+         - 테스트 용이성 점수
+
+      4. 데이터 흐름 문서화:
+         - 8단계 파이프라인 다이어그램
+         - 각 단계별 입출력 명세
+         - 컴포넌트 호출 분포 메트릭
+
+      핵심: 복잡한 멀티 에이전트 시스템의 개발 과정을 재현 가능하고
+            학습 가능한 형태로 문서화하여 지식 축적
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T02:30:00+09:00"
+    confidence: 0.91
+    tags:
+      - documentation
+      - analysis
+      - multi-agent
+      - testing
+      - knowledge-management
+      - self-evolving
+    related_files:
+      - claudedocs/self_evolving_agent_system_analysis.md
+      - Project/adaptive-tutor-agent/tests/test_comprehensive_suite.py
+      - Project/adaptive-tutor-agent/tests/test_integration_suite.py
+
+  - id: LP-068
+    context: Serena MCP 서버 활용 패턴
+    status: SUCCESS_PATTERN
+    content: |
+      Serena MCP 서버는 시맨틱 코드 이해를 제공하는 도구로, 다음 패턴으로 활용:
+
+      1. 토큰 효율적 코드 탐색:
+         - get_symbols_overview: 파일 전체 읽기 대신 심볼 구조만 조회 (토큰 70-90% 절감)
+         - find_symbol + include_body=false: 구조 파악 후 필요한 심볼만 본문 조회
+         - find_referencing_symbols: 리팩토링 전 영향 범위 파악
+
+      2. 심볼 단위 편집:
+         - replace_symbol_body: 라인 번호 의존 없이 심볼 이름으로 정확한 편집
+         - rename_symbol: 전체 참조 자동 업데이트
+         - insert_before/after_symbol: 위치 기반이 아닌 심볼 기반 삽입
+
+      3. 세션 영속성:
+         - write_memory/read_memory: 복잡한 작업을 여러 세션에 걸쳐 진행
+         - list_memories: 저장된 컨텍스트 관리
+
+      4. 메타인지 지원:
+         - think_about_collected_information: 수집 정보 분석
+         - think_about_whether_you_are_done: 완료 여부 자가 진단
+
+      권장 워크플로우:
+      get_symbols_overview → find_symbol(body=false) → find_symbol(body=true) → 편집
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T12:00:00+09:00"
+    confidence: 0.92
+    tags:
+      - mcp
+      - serena
+      - code-navigation
+      - refactoring
+      - token-efficiency
+      - semantic-editing
+      - session-persistence
+    related_files:
+      - ~/.claude/MCP_Serena.md
+
+  - id: LP-069
+    context: 선물 자동매매 시스템 분석
+    status: SUCCESS_PATTERN
+    content: |
+      C언어 기반 트레이딩 시스템 분석 시 핵심 파일 우선순위:
+
+      1. entry_strategy.h - 진입 조건 (매수/매도 로직)
+      2. exit_strategy.h - 청산 조건 (손절/익절/추적손절)
+      3. trading_engine.c - 전체 흐름 오케스트레이션
+      4. indicators.c/h - 기술적 지표 계산 (TA-Lib 사용)
+
+      분석 포인트:
+      - 조건 조합 방식 (AND/OR)
+      - 임계값 파라미터
+      - 시그널 발생 타이밍 (틱별 vs 봉완성 시)
+      - 포지션 관리 로직
+
+      문서화 시 포함 요소:
+      - 개별 조건 해석 (지표 의미)
+      - 파라미터 기본값 및 조정 가능 범위
+      - 로그 출력 예시
+      - 전략 특성 요약표
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T14:00:00+09:00"
+    confidence: 0.88
+    tags:
+      - trading
+      - futures
+      - technical-analysis
+      - c-language
+      - ta-lib
+      - system-analysis
+    related_files:
+      - tradingSystem/FutKW Trader/src/core/entry_strategy.h
+      - tradingSystem/FutKW Trader/src/core/exit_strategy.h
+      - tradingSystem/FutKW Trader/src/core/trading_engine.c
+
+  - id: LP-070
+    context: 교육 도메인 특화 ACE Agent 구축
+    status: SUCCESS_PATTERN
+    content: |
+      수능 입시 전문 에이전트 구축 시 ACE Framework V5.2를 활용하면 효과적.
+
+      핵심 확장 포인트:
+      1. Memory Lane 확장: 6타입 → 12타입 (교육 도메인 특화)
+         - 기존: CORRECTION, DECISION, INSIGHT, PATTERN, GAP, LEARNING
+         - 추가: MASTERY, STRUGGLE, WRONG_ANSWER, STRATEGY, PREFERENCE, EMOTION
+
+      2. Subject-Aware Router: 과목 감지 → 복잡도 분석 → 모델 라우팅
+         - 과목별 키워드 매칭 (국어, 수학, 영어, 과탐, 사탐)
+         - 과목별 복잡도 보정 (수학 +0.1, 과탐 +0.08, 사탐 -0.05)
+
+      3. D-Day 기반 적응형 학습:
+         - 4개 페이즈: CONCEPT(D-100+), PRACTICE(D-30~100), REVIEW(D-7~30), FINAL(D-7)
+         - 페이즈별 학습 비율 자동 조정 (개념/문제/복습)
+
+      4. 심리 지원 통합:
+         - 감정 키워드 기반 실시간 분석 (7가지 감정 유형)
+         - 번아웃 감지 (7일 추적, 60% 부정 감정 임계값)
+         - 정기 체크인 (3일 간격)
+
+      5. Re-Ranking 6-Factor 가중치:
+         - Similarity 45%, Recency 10%, Confidence 10%
+         - TypeBoost 15%, SubjectMatch 10%, Urgency 10%
+
+      SM-2 알고리즘으로 복습 스케줄링 구현.
+      EMA(alpha=0.3)로 숙달도 추적.
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T15:30:00+09:00"
+    confidence: 0.92
+    tags:
+      - ace-framework
+      - education-domain
+      - memory-lane
+      - teacher-student
+      - spaced-repetition
+      - stress-management
+      - korean-exam
+      - suneung
+    related_files:
+      - Project/suneung-ace-agent/core/agent.py
+      - Project/suneung-ace-agent/core/router.py
+      - Project/suneung-ace-agent/core/stress_monitor.py
+      - Project/suneung-ace-agent/memory/learning_memory.py
+      - Project/suneung-ace-agent/handlers/schedule_planner.py
+      - Project/suneung-ace-agent/handlers/progress_tracker.py
+
+  - id: LP-071
+    context: Serena 및 토큰 효율성 자동화 Hook 시스템
+    status: SUCCESS_PATTERN
+    content: |
+      Claude Code 환경 최적화를 위한 3가지 자동화 Hook 구현:
+
+      1. serena-auto-activate.sh (SessionStart):
+         - 세션 시작 시 Serena 프로젝트 자동 활성화
+         - 이전 세션 컨텍스트 자동 로드 (last_session_context)
+         - 현재 세션 시작 기록
+
+      2. serena-save-context.sh (Stop):
+         - 세션 종료 시 컨텍스트 요약 저장
+         - 다음 세션에서 연속성 유지 가능
+         - current_session 메모리 정리
+
+      3. context-efficiency-check.sh (UserPromptSubmit):
+         - 컨텍스트 사용량 75%+ 감지 시 경고
+         - --uc 토큰 효율 모드 자동 권장
+         - 85%+ 시 강력 경고 (essential operations only)
+
+      Hook 연동:
+      - SessionStart: serena-auto-activate.sh
+      - UserPromptSubmit: context-efficiency-check.sh
+      - Stop: serena-save-context.sh
+
+      이 패턴으로 세션 간 컨텍스트 연속성 + 토큰 효율성 자동 관리 가능.
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T16:00:00+09:00"
+    confidence: 0.90
+    tags:
+      - automation
+      - hook-system
+      - serena
+      - token-efficiency
+      - session-management
+      - optimization
+    related_files:
+      - scripts/serena-auto-activate.sh
+      - scripts/serena-save-context.sh
+      - scripts/context-efficiency-check.sh
+      - .claude/settings.json
+
+  - id: LP-072
+    context: 듀얼 메모리 시스템 역할 분담
+    status: SUCCESS_PATTERN
+    content: |
+      Claude Code 환경의 메모리 계층:
+
+      1. claude-mem (자동/시맨틱):
+         - 세션 observation 자동 수집
+         - ChromaDB 벡터 검색 (14개 도구)
+         - 과거 작업 컨텍스트 조회에 최적
+         - 도구: search, timeline, decisions, find_by_concept 등
+
+      2. Serena memory (수동/명시적):
+         - write_memory/read_memory로 수동 관리
+         - 복잡한 멀티세션 작업 상태 저장
+         - 프로젝트별 격리
+         - 도구: write_memory, read_memory, list_memories
+
+      3. project_brain.yaml (패턴 지식):
+         - 학습된 성공/실패 패턴 영구 저장
+         - 규칙 기반 행동 지침
+         - Hook 통해 자동 병합
+
+      권장 워크플로우:
+      claude-mem 검색 → brain 패턴 적용 → 필요시 Serena 상태 저장
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T16:00:00+09:00"
+    confidence: 0.90
+    tags:
+      - memory-system
+      - claude-mem
+      - serena
+      - architecture
+      - workflow
+    related_files:
+      - .opencode/brain/project_brain.yaml
+
+  - id: LP-073
+    context: 에이전트 채팅 인터페이스 설계
+    status: SUCCESS_PATTERN
+    content: |
+      교육용 에이전트에 대화형 채팅 기능 추가 시 핵심 구성요소:
+
+      1. ConversationContext 클래스:
+         - messages: List[ChatMessage] - 최근 N개 메시지 유지
+         - current_topic/subject: 대화 맥락 추적
+         - to_prompt_format(): LLM 프롬프트 형식 변환
+
+      2. 명령어 처리 시스템:
+         - COMMAND_ALIASES: 한국어/영어 명령어 매핑
+         - INTENT_PATTERNS: 자연어 의도 감지 (짧은 입력만)
+         - register_handler(): 명령어별 핸들러 등록
+
+      3. 대화 이력 관리:
+         - 최근 20개 메시지만 유지 (컨텍스트 오버플로우 방지)
+         - 대화 맥락을 LLM 호출 시 포함
+         - clear() 메서드로 대화 초기화
+
+      4. Rich 라이브러리 선택적 사용:
+         - RICH_AVAILABLE 플래그로 조건부 import
+         - 없을 경우 기본 print() 폴백
+
+      5. 실행 모드:
+         - 대화형 채팅: run_async() + create_chat_session()
+         - 단일 질문: --query 옵션으로 즉시 응답
+         - 데모 모드: API 키 없이 기능 체험
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T15:45:00+09:00"
+    confidence: 0.88
+    tags:
+      - chat-interface
+      - conversation-context
+      - cli
+      - user-experience
+      - rich-library
+    related_files:
+      - Project/suneung-ace-agent/core/chat_interface.py
+      - Project/suneung-ace-agent/main.py
+
+  - id: LP-074
+    context: CLAUDE.md 토큰 효율 모드 강제 적용
+    status: SUCCESS_PATTERN
+    content: |
+      CLAUDE.md에 "MANDATORY: Token Efficiency Mode" 섹션 추가로
+      모든 응답에 토큰 효율 스타일 강제 적용:
+
+      1. 심볼 통신: ✅❌⚠️→⇒🔄⚡🛡️📦
+      2. 약어 사용: cfg, impl, deps, perf, arch, val
+      3. 구조화: 테이블 > 문단, 불릿 > 산문
+      4. 간결성: 답변 먼저, 필러 문구 제거
+
+      위치: CLAUDE.md 최상단 (SuperClaude 섹션 전)
+      효과: --uc 플래그 없이도 항상 30-50% 토큰 절감
+
+      주의: 새 세션에서 적용됨 (현재 세션은 이미 로드된 지침 사용)
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T16:25:00+09:00"
+    confidence: 0.92
+    tags:
+      - token-efficiency
+      - claude-md
+      - optimization
+      - configuration
+      - mandatory-mode
+    related_files:
+      - ~/.claude/CLAUDE.md
+      - ~/.claude/MODE_Token_Efficiency.md
+  - id: LP-075
+    context: Claude Code 환경 최적화 효과 측정
+    status: SUCCESS_PATTERN
+    content: |
+      기본 Claude Code 대비 최적화 환경 효과:
+      - 토큰: 35-45% 절감 (Symbol/약어/구조화)
+      - MCP: 10+ 서버로 전문 기능 확장
+      - Hook: 9개로 자동화 (세션/학습/관측)
+      - Brain: 74+ 패턴 축적으로 지식 재활용
+      측정 방법: 동일 작업 전후 토큰/시간 비교
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T15:40:00+09:00"
+    confidence: 0.88
+    tags:
+      - optimization
+      - token-efficiency
+      - performance
+      - benchmark
+    related_files:
+      - ~/.claude/CLAUDE.md
+      - .claude/settings.json
+  - id: LP-076
+    context: 수능 ACE Agent 통합 테스트 100% 통과
+    status: SUCCESS_PATTERN
+    content: |
+      15개 통합 테스트 전체 통과 (100% pass rate):
+      - Component Interaction (6/6): Router↔Skill, Router↔MCP, Skill↔RAG, Memory↔Teacher-Student, RAG↔Memory, Learning↔Pattern
+      - Pipeline (2/2): End-to-End, Component Distribution
+      - Data Integrity (1/1): Data Consistency
+      - Reliability (4/4): Error Recovery, Performance Stability, Caching, Skill Switching
+      - Persistence (2/2): Memory Persistence, Continuous Improvement
+      핵심 인사이트:
+      1. Memory Lane API: extract_and_store()에 teacher_insight 필수
+      2. LearningMemoryCatcher: catch() 대신 extract_memory() 사용
+      3. ChromaDB 없이 in-memory 모드도 정상 동작
+      4. SM-2 알고리즘 기반 ProgressTracker 마스터리 추적 정확
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T16:00:00+09:00"
+    confidence: 0.95
+    tags:
+      - testing
+      - integration
+      - ace-agent
+      - production-ready
+    related_files:
+      - Project/suneung-ace-agent/tests/test_integration.py
+      - Project/suneung-ace-agent/memory/learning_memory.py
+  - id: LP-077
+    context: Claude Code 환경 MacOS 이식
+    status: SUCCESS_PATTERN
+    content: |
+      MacOS 이식 핵심 요소:
+      1. ~/.claude/ 폴더 전체 복사 (CLAUDE.md, settings.json, MODE_*.md 등)
+      2. MCP 서버 npm -g 설치 (serena, playwright, context7, tavily)
+      3. settings.json 경로 /home → /Users 변환
+      4. 최소 설치: CLAUDE.md만으로 토큰 30-50% 절감 가능
+      5. 플러그인: /plugins:install로 활성화
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T15:50:00+09:00"
+    confidence: 0.90
+    tags:
+      - migration
+      - macos
+      - installation
+      - portability
+    related_files:
+      - ~/.claude/CLAUDE.md
+      - ~/.claude/settings.json
+  - id: LP-078
+    context: 테스트 범위 3단계 구분
+    status: SUCCESS_PATTERN
+    content: |
+      테스트 레벨별 명확한 구분:
+      1. Unit Test: 컴포넌트 로직만 검증 (API 키 불필요, 0.04초)
+      2. Integration Test: 컴포넌트 간 연동 (API 키 불필요)
+      3. E2E Test: 실제 외부 API 연동 (API 키 필수, 8-10초)
+      이전 15개 테스트는 1-2단계로 빠른 피드백 제공.
+      LLM 테스트는 3단계로 실제 서비스 동작 검증.
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T16:30:00+09:00"
+    confidence: 0.92
+    tags:
+      - testing
+      - architecture
+      - best-practice
+    related_files:
+      - Project/suneung-ace-agent/tests/test_integration.py
+  - id: LP-079
+    context: 교육용 에이전트 아키텍처 검증 완료
+    status: SUCCESS_PATTERN
+    content: |
+      수능 ACE Agent 아키텍처 검증 결과:
+      - SRP 준수: 7개 모듈 각각 단일 책임
+      - 의존성: 단방향 흐름, 순환 없음
+      - 확장성: 스킬/메모리타입/명령어 쉽게 추가
+      - 안정성: graceful degradation, 에러 복구
+      - 테스트: 100% 통과 (15개 통합 + 3개 LLM)
+      Production Ready 등급: 5/5
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T16:30:00+09:00"
+    confidence: 0.95
+    tags:
+      - architecture
+      - validation
+      - production-ready
+      - ace-agent
+    related_files:
+      - Project/suneung-ace-agent/docs/ARCHITECTURE_REPORT.md
+  - id: LP-080
+    context: GitHub 저장소 푸시 및 Organization 권한 트러블슈팅
+    status: SUCCESS_PATTERN
+    content: |
+      GitHub Push 시 권한 문제 해결 워크플로우:
+      1. Organization 저장소 403 에러 → 멤버 Write 권한 필요
+      2. SSH 연결 실패 → SSH 키 미등록 또는 없음 확인
+      3. Repository not found → 저장소 미생성 또는 Private 접근 불가
+      해결 우선순위:
+      - 개인 계정 저장소로 먼저 시도 (권한 문제 회피)
+      - Organization은 Admin 권한 필요하거나 명시적 Write 권한 부여 필요
+      - SSH vs HTTPS: 개인 토큰 없으면 SSH 키 생성 권장
+    model_used: claude-opus-4-5
+    learned_at: "2025-12-25T16:58:00+09:00"
+    confidence: 0.92
+    tags:
+      - git
+      - github
+      - authentication
+      - organization
+      - troubleshooting
+    related_files:
+      - Project/suneung-ace-agent/.git/config
+
 skill_integration:
   git-expert:
     path: .claude/skills/git-expert/
@@ -1194,7 +2523,7 @@ skill_integration:
       - build
     description: 빠른 개발 명령
 workflow_history:
-  last_sync: "2025-12-20T09:58:00+09:00"
+  last_sync: "2025-12-20T01:23:52+09:00"
   total_tasks: 18
   successful_tasks: 18
   failed_tasks: 0
@@ -1465,13 +2794,13 @@ workflow_history:
         - JWT 인증/utils/api-client.ts
         - JWT 인증/api/auth.routes.ts
 metrics:
-  patterns_learned: 49
-  patterns_applied: 49
-  evolution_cycles: 32
-  confidence_average: 0.88
+  patterns_learned: 172
+  patterns_applied: 72
+  evolution_cycles: 56
+  confidence_average: .85
   by_status:
-    success_patterns: 48
-    failure_patterns: 2
+    success_patterns: 63
+    failure_patterns: 3
   by_tag:
     authentication: 4
     jwt: 3
